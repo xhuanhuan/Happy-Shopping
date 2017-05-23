@@ -10,7 +10,7 @@
     </div>
 
     <div class="user-info">
-    <Menu mode="horizontal" active-name="1" style="display:flex;justify-content: space-between;">
+    <Menu mode="horizontal" active-name="3" style="display:flex;justify-content: space-between;">
         <Menu-item name="1">
           <div  v-on:click="myPosts">
             <Icon type="compose"></Icon>
@@ -18,14 +18,14 @@
           </div>
         </Menu-item>
         <div style="width:1px;height:100%;border-left:1px solid rgb(200, 224, 228);"></div>
-        <Menu-item name="3" v-if="true">
+        <Menu-item name="2">
           <div v-on:click="myFollows">
             <Icon type="tshirt"></Icon>
             我的关注
           </div>
         </Menu-item>
         <div style="width:1px;height:100%;border-left:1px solid rgb(200, 224, 228);"></div>
-        <Menu-item name="2">
+        <Menu-item name="3">
           <div v-on:click="myCollects">
             <Icon type="android-checkmark-circle"></Icon>
             我的收藏
@@ -34,9 +34,19 @@
     </Menu>
   </div>
 
-  <div class="content">
-    <div class="block" v-for="item in userInfo.shopFollowed">
-    <Follows :msg="item"></Follows>
+  <div class="app-content" v-if="sellected === 1">
+    <div class="block" v-for="(item, index) in userInfo.shopsFollowed">
+    <Posts :activityId="item" :activityInfo="activitiesInfo"></Posts>
+    </div>
+  </div>
+  <div class="app-content" v-else-if="sellected === 2">
+    <div class="block" v-for="(item, index) in userInfo.shopsFollowed">
+    <Follows :shopId="item" :shopsInfo="shopsInfo" v-on:remove="removeFollows(index)"></Follows>
+    </div>
+  </div>
+  <div class="app-content" v-else>
+    <div class="block" v-for="(item, index) in userInfo.activitiescollected">
+    <Collects :activityId="item" :shopsInfo="activitiesInfo"></Collects>
     </div>
   </div>
 
@@ -47,64 +57,138 @@
       name: 'footer',
       components: {
         'Posts': {
-          template: `aaa`
+          template: `<div class="posts_container">aaa
+          </div>`
         },
         'Follows': {
-          template: `<div class="follows_container"><img :src="user.headImg" style="width:4rem;height:4rem;"></div>`,
-          props: ['msg'],
-          data () {
-            var arr
-            if (this.sellected === 2) {
-              arr = this.userInfo.shopFollowed
-            } else {
-              arr = this.userInfo.activitycollected
+          template: `<div class="follows_container">
+          <div :style="container1">
+          <img :src="shopInfo.headImg" :style="headimgStyle">
+          <span :style="shopnameStyle">{{shopInfo.shopName}}</span>
+          </div>
+          <Button type="warning" shape="circle" v-on:click="remove">取消关注</Button>
+          </div>`,
+          props: ['shopId', 'shopsInfo'],
+          computed: {
+            shopInfo: function () {
+              var shopsInfo=[].slice.call(this.shopsInfo)
+              var that = this
+              var target = shopsInfo.filter(function (item) {
+                return item.shopId === that.shopId
+              })
+              return target[0]
             }
-            var o = this.shopInfo.filter(function (item) {
-              var r = 1
-              for (var i = 0; i < arr.length; i++) {
-                if (arr[i] === item.shopId) {
-                  r--
-                  break
-                }
-              }
-              if (r === 0) {
-                return true
-              }
-              return false
-            })
-            console.log(o)
+          },
+          methods: {
+            remove: function () {
+              this.$emit('remove')
+            }
+          },
+          data () {
             return {
-              user: o
+              container1: {
+                display: 'flex',
+                alignItems: 'center'
+              },
+              headimgStyle: {
+                width:'4rem',
+                height:'4rem'
+              },
+              shopnameStyle: {
+                fontSize: '1rem',
+                marginLeft: '1rem'
+              }
             }
           }
         },
         'Collects': {
-          template: `bbb`
+          template: `<div class="posts_container">bbb
+          </div>`
         }
       },
       methods: {
         myPosts: function () {
-          console.log(1)
+          this.sellected = 1
         },
         myFollows: function () {
-          console.log(2)
+          this.sellected = 2
         },
         myCollects: function () {
-          console.log(3)
+          this.sellected = 3
+        },
+        removeFollows: function (index) {
+          var shopFollowed=[].slice.call(this.userInfo.shopFollowed)
+          console.log(shopFollowed)
+          shopFollowed.splice(index,1)
+          this.userInfo.shopFollowed=shopFollowed
         }
       },
       data () {
         return {
-          sellected: 2,
+          sellected: 3,
           userInfo: {
             userId: '4124r2543',
             userName: '小欢欢',
             headimg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
-            shopFollowed: ['21r2r32g43y3', 'r1rf12f'],
-            activitycollected: ['984i12kmdcfk0r1', '152TF322T32T2F'],
+            shopsFollowed: ['21r2r32g43y3', 'r1rf12f'],
+            activitiescollected: ['984i12kmdcfk0r1', '152TF322T32T2F'],
             mode: 1
           },
-          shopInfo: [
+          activitiesInfo: [
+            {
+              shopId: 'r1rf12f',
+              shopName: 'earth music 旗舰店',
+              activityId: '113532354',
+              coverImg: 'http://img5.imgtn.bdimg.com/it/u=3691544771,740678494&fm=23&gp=0.jpg',
+              activityName: '#520闺蜜节#',
+              activityContent: '5.20-5.22全场1折起',
+              postTime: '3小时前',
+              likes: ['xdd', 'xbb', 'xyy', 'sdd', 'sma'],
+              comments: ['xdd:hello world', 'xss:hello world', 'xmm:hello world'],
+              watchs: 141,
+              collections: ['mht', 'xbb', 'xyy', 'sdd', 'sma']
+            },
+            {
+              shopId: '124125r3f',
+              activityId: '41224tgsc34Ac634',
+              shopName: 'majestic legon 旗舰店',
+              coverImg: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1495284224924&di=68a61a2ebef04dcf6add96d233fc9fe9&imgtype=0&src=http%3A%2F%2Fh8.86.cc%2Fwalls%2F20160405%2F1440x900_9837c6522e7cb1f.jpg',
+              activityName: '#520闺蜜节#',
+              activityContent: '5.20-5.22全场1折起',
+              postTime: '3小时前',
+              likes: ['xhh', 'qwf', 'qwcqw', 'xbb', 'xyy', 'sdd', 'sma'],
+              comments: ['xhh:hello world', 'xdd回复xhh:hello world', 'xmm:hello world'],
+              watchs: 235,
+              collections: ['xhh', 'xbb', 'xyy', 'sdd', 'sma', 'qfq', 'F121']
+            },
+            {
+              shopId: '35r3251t3g431',
+              activityId: '152TF322T32T2F',
+              shopName: 'nice claup 旗舰店',
+              coverImg: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1495284270411&di=e3dcd156cc328c49250c9e77f1fd82fe&imgtype=0&src=http%3A%2F%2Fwww.1tong.com%2Fuploads%2Fwallpaper%2Fplants%2F121-2-1600x900.jpg',
+              activityName: '#520闺蜜节#',
+              activityContent: '5.20-5.22全场1折起',
+              postTime: '3分钟前',
+              likes: ['xss', 'qwf', 'qwcqw', 'xbb', 'xyy', 'sdd', 'sma'],
+              comments: ['xhh:hello world', 'xdd:hello world', 'xmm回复xdd:hello world'],
+              watchs: 235,
+              collections: ['xhh', 'xbb', 'xyy', 'xas', 'sma', 'qfq', 'F121', 'qwfq', '2yg1']
+            },
+            {
+              shopId: '21r2r32g43y3',
+              activityId: '984i12kmdcfk0r1',
+              shopName: 'collect music 旗舰店',
+              coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
+              activityName: '#520闺蜜节#',
+              activityContent: '5.20-5.22全场1折起',
+              postTime: '3分钟前',
+              likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
+              comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
+              watchs: 542,
+              collections: ['ggg', 'xbb', 'xyy', 'xas', 'qwc', 'F121', 'qwfq']
+            }
+          ],
+          shopsInfo: [
             {
               shopId: 'r1rf12f',
               shopName: 'earth music 旗舰店',
@@ -178,11 +262,12 @@
 .follows_container{
   width: 100%;
   height:6rem;
-  padding:1rem;
-  border: 1px solid black;
+  padding:0 1rem;
+  margin-bottom: 1px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e3e8ee;
 }
-.post-head-Img{
-  width: 4rem;
-  height:4rem;
-}
+
 </style>
