@@ -46,7 +46,7 @@
   </div>
   <div class="app-content" v-else>
     <div class="block" v-for="(item, index) in userInfo.activitiescollected">
-    <Collects :activityId="item" :shopsInfo="activitiesInfo"></Collects>
+    <Collects :activityId="item" :activitiesInfo="activitiesInfo" v-on:remove="removeCollects(index)"></Collects>
     </div>
   </div>
 
@@ -66,7 +66,7 @@
           <img :src="shopInfo.headImg" :style="headimgStyle">
           <span :style="shopnameStyle">{{shopInfo.shopName}}</span>
           </div>
-          <Button type="warning" shape="circle" v-on:click="remove">取消关注</Button>
+          <Button shape="circle" v-on:click="remove">取消关注</Button>
           </div>`,
           props: ['shopId', 'shopsInfo'],
           computed: {
@@ -102,8 +102,31 @@
           }
         },
         'Collects': {
-          template: `<div class="posts_container">bbb
-          </div>`
+          template: `<div class="collects_container">
+          <img :src="activityInfo.coverImg" style="width:8rem;height:8rem;">
+          <div style="width:10rem;height:8rem;overflow:auto">
+          <h3 style="color:#5cadff">{{activityInfo.shopName}}</h3>
+          <h4>{{activityInfo.activityName}}</h4>
+          <p>{{activityInfo.activityContent}}</p>
+          </div>
+            <Button icon="close" shape="circle" size="small" v-on:click="remove"></Button>
+          </div>`,
+          props: ['activityId', 'activitiesInfo'],
+          computed: {
+            activityInfo: function () {
+              var activityInfo=[].slice.call(this.activitiesInfo)
+              var that = this
+              var target = activityInfo.filter(function (item) {
+                return item.activityId === that.activityId
+              })
+              return target[0]
+            }
+          },
+          methods: {
+            remove: function () {
+              this.$emit('remove')
+            }
+          },
         }
       },
       methods: {
@@ -121,6 +144,12 @@
           console.log(shopFollowed)
           shopFollowed.splice(index,1)
           this.userInfo.shopFollowed=shopFollowed
+        },
+        removeCollects: function (index) {
+          var activitiescollected=[].slice.call(this.userInfo.activitiescollected)
+          console.log(activitiescollected)
+          activitiescollected.splice(index,1)
+          this.userInfo.activitiescollected=activitiescollected
         }
       },
       data () {
@@ -131,7 +160,7 @@
             userName: '小欢欢',
             headimg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
             shopsFollowed: ['21r2r32g43y3', 'r1rf12f'],
-            activitiescollected: ['984i12kmdcfk0r1', '152TF322T32T2F'],
+            activitiescollected: ['113532354', '984i12kmdcfk0r1', '152TF322T32T2F'],
             mode: 1
           },
           activitiesInfo: [
@@ -180,7 +209,7 @@
               shopName: 'collect music 旗舰店',
               coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
               activityName: '#520闺蜜节#',
-              activityContent: '5.20-5.22全场1折起',
+              activityContent: '5.20-5.22全场1折起,去重全额V穷，qnf9w初三错去煤气女IQ完虐哦v V的妻女群殴我才去win服务勤奋成为汽车',
               postTime: '3分钟前',
               likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
               comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
@@ -259,9 +288,25 @@
 .my{
   padding: 1rem;
 }
+.app-content{
+  margin-bottom: 4rem;
+}
+.block{
+  background-color: #f5f7f9;
+}
 .follows_container{
   width: 100%;
   height:6rem;
+  padding:0 1rem;
+  margin-bottom: 1px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e3e8ee;
+}
+.collects_container{
+  width: 100%;
+  height:10rem;
   padding:0 1rem;
   margin-bottom: 1px;
   display: flex;
