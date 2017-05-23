@@ -1,21 +1,33 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Hello from '@/components/Hello'
-import Love from '@/components/LOVE'
+// import Hello from '@/components/Hello'
+import Home from '@/components/Home'
+import Personal from '@/components/Personal'
+import Post from '@/components/Post'
 
 Vue.use(Router)
 
 export default new Router({
   routes: [
     {
-      path: '/',
-      name: 'Hello',
-      component: Hello
+      path: '/home',
+      name: 'Home',
+      component: Home
     },
     {
-      path: '/520',
-      name: 'love',
-      component: Love
+      path: '/personal',
+      name: 'personal',
+      component: Personal
+    },
+    {
+      path: '/post',
+      name: 'post',
+      component: Post
     }
+    // {
+    //   path: '/hello',
+    //   name: 'hello',
+    //   component: Hello
+    // }
   ]
 })
