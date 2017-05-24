@@ -1,9 +1,44 @@
 <template>
   <div>
     <div class="setandsistem">
-      <span class="set">设置</span>
+      <span class="set" v-on:click="show = true">设置</span>
       <Icon class="bell" size=20 type="ios-bell"></Icon>
     </div>
+    <transition name="setPart">
+    <div class="setPart" v-if="show">
+      <div class="set-header"><Button type="text" icon="chevron-left" v-on:click="show = false">返回</Button></div>
+      <Collapse style="border-left:none;border-right:none;">
+        <Panel name="1">
+          个人资料
+          <ul slot="content">
+            <li><span>头像</span><img class="head-Img" :src="userInfo.headimg" /><Icon size=20 type="camera"></Icon></li>
+            <li><span>背景</span><img class="head-Img" :src="userInfo.headimg" /><Icon size=20 type="camera"></Icon></li>
+            <li><span>性别</span>
+              <Select style="width:180px" :value="userInfo.sex">
+                <Option value="男" key="1">男</Option><Option value="女" key="2">女</Option>
+              </Select>
+            </li>
+            <li><span>生辰</span> <Date-picker type="date" :value="userInfo.birthday" placeholder="选择日期" style="width: 180px"></Date-picker></li>
+            <li><span>常驻</span>
+              <Select style="width:180px" :value="userInfo.position">
+                <Option value="北京" key="1">北京</Option><Option value="深圳" key="2">深圳</Option>
+              </Select>
+            </li>
+          </ul>
+        </Panel>
+        <Panel name="2">我的店铺
+          <ul slot="content">
+            <li><span>店铺头像</span><img class="head-Img" :src="userInfo.headimg" /><Icon size=20 type="camera"></Icon></li>
+            <li><span>店铺背景</span><img class="head-Img" :src="userInfo.headimg" /><Icon size=20 type="camera"></Icon></li>
+            <li><span>店铺名称</span><p>erth music旗舰店</p></li>
+            <li><span>创建时间</span> <Date-picker type="date" :value="userInfo.birthday" placeholder="选择日期" style="width: 180px"></Date-picker></li>
+            <li><span>去店铺首页</span><router-link to="/home"><Icon type="chevron-right"></Icon></router-link></li>
+          </ul>
+        </Panel>
+      </Collapse>
+      <div class="log-out"> <Button long type="warning">退出当前登录</Button></div>
+    </div>
+    </transition>
     <div class="header">
       <span class="username">{{userInfo.userName}}</span>
       <img class="head-Img" :src="userInfo.headimg">
@@ -11,13 +46,6 @@
 
     <div class="user-info">
     <Menu mode="horizontal" :active-name="sellected" style="display:flex;justify-content: space-around;">
-        <Menu-item name="1" v-if="userInfo.mode===1">
-          <div  v-on:click="myPosts">
-            <Icon type="compose"></Icon>
-            我的发布
-          </div>
-        </Menu-item>
-        <div v-if="userInfo.mode===1" style="width:1px;height:100%;border-left:1px solid rgb(200, 224, 228);"></div>
         <Menu-item name="2">
           <div v-on:click="myFollows">
             <Icon type="eye"></Icon>
@@ -33,7 +61,6 @@
         </Menu-item>
     </Menu>
   </div>
-
   <div class="app-content" v-if="sellected === 1">
     <div class="block" v-for="(item, index) in userInfo.shopsFollowed">
     <Posts :activityId="item" :activityInfo="activitiesInfo"></Posts>
@@ -56,10 +83,6 @@
     export default {
       name: 'footer',
       components: {
-        'Posts': {
-          template: `<div class="posts_container">aaa
-          </div>`
-        },
         'Follows': {
           template: `<div class="follows_container">
           <div :style="container1">
@@ -150,15 +173,23 @@
           console.log(activitiescollected)
           activitiescollected.splice(index,1)
           this.userInfo.activitiescollected=activitiescollected
+        },
+        back: function () {
+          console.log('back')
         }
       },
       data () {
         return {
           sellected: '3',
+          show: false,
           userInfo: {
             userId: '4124r2543',
             userName: '小欢欢',
             headimg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
+            backgroundimage: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
+            birthday: '1991-08-29',
+            sex: '女',
+            position: '深圳',
             shopsFollowed: ['21r2r32g43y3', 'r1rf12f'],
             activitiescollected: ['113532354', '984i12kmdcfk0r1', '152TF322T32T2F'],
             mode: 1
@@ -249,6 +280,31 @@
 </script>
 
 <style scoped>
+.setPart{
+  width:100%;
+  background-color: white;
+  position:fixed;
+  top:0;
+  bottom: 0;
+  left: 0;
+  z-index:1001;
+  overflow: auto;
+}
+li{
+  padding:1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e3e8ee;
+}
+.set-header{
+  padding: 1rem;
+  border-bottom: 1px solid #e3e8ee;
+}
+.log-out{
+  padding: 1rem;
+  text-align: center;
+}
 .header{
   width:100%;
   height:10rem;
@@ -313,6 +369,30 @@
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #e3e8ee;
+}
+
+
+.setPart-enter-active {
+  animation:setPart-in .5s linear;
+}
+.setPart-leave-active {
+  animation:setPart-out .5s linear;
+}
+@keyframes setPart-in {
+  0% {
+    transform: translateX(-375px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes setPart-out {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-375px);
+  }
 }
 
 </style>
