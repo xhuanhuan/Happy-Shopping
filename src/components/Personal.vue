@@ -10,17 +10,17 @@
     </div>
 
     <div class="user-info">
-    <Menu mode="horizontal" active-name="3" style="display:flex;justify-content: space-between;">
-        <Menu-item name="1">
+    <Menu mode="horizontal" :active-name="sellected" style="display:flex;justify-content: space-around;">
+        <Menu-item name="1" v-if="userInfo.mode===1">
           <div  v-on:click="myPosts">
             <Icon type="compose"></Icon>
             我的发布
           </div>
         </Menu-item>
-        <div style="width:1px;height:100%;border-left:1px solid rgb(200, 224, 228);"></div>
+        <div v-if="userInfo.mode===1" style="width:1px;height:100%;border-left:1px solid rgb(200, 224, 228);"></div>
         <Menu-item name="2">
           <div v-on:click="myFollows">
-            <Icon type="tshirt"></Icon>
+            <Icon type="eye"></Icon>
             我的关注
           </div>
         </Menu-item>
@@ -154,7 +154,7 @@
       },
       data () {
         return {
-          sellected: 3,
+          sellected: '3',
           userInfo: {
             userId: '4124r2543',
             userName: '小欢欢',

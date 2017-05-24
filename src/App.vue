@@ -8,24 +8,24 @@
     <router-view></router-view>
     <div class="footer">
     <Menu mode="horizontal" active-name="1" style="background-color: #e3e8ee;display:flex;justify-content: space-between;">
+      <router-link to="/home">
         <Menu-item name="1">
-          <div  v-on:click="navToHome">
-            <Icon type="home"></Icon>
-            首页
-          </div>
+          <Icon type="home"></Icon>
+          首页
         </Menu-item>
+      </router-link>
+      <router-link to="/post">
         <Menu-item name="3" v-if="true">
-          <div v-on:click="navToPost">
-            <Icon type="plus-circled"></Icon>
-            发布
-          </div>
+          <Icon type="compose"></Icon>
+          发布
         </Menu-item>
+      </router-link>
+      <router-link to="/personal">
         <Menu-item name="2">
-          <div v-on:click="navToPerson">
             <Icon type="person"></Icon>
             我的
-          </div>
         </Menu-item>
+      </router-link>
     </Menu>
   </div>
   </div>
