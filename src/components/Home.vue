@@ -136,7 +136,7 @@ export default {
         {
           shopId: '21r2r32g43y3',
           activityId: '984i12kmdcfk0r1',
-          shopName: 'collect music 旗舰店',
+          shopName: 'collect point 旗舰店',
           coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
           activityName: '#520闺蜜节#',
           activityContent: '5.20-5.22全场1折起',

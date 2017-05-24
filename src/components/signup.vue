@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="login-header">
-      <span class="set" v-on:click="show = true">账户登录</span>
+      <span class="set" v-on:click="show = true">账户注册</span>
     </div>
     <div class="login-content">
       <Form ref="formInline" :model="formInline" :rules="ruleInline">
@@ -19,6 +19,12 @@
             <Input type="password" v-model="formInline.password2" placeholder="再次输入密码">
                 <Icon type="ios-locked-outline" slot="prepend"></Icon>
             </Input>
+        </Form-item>
+        <Form-item prop="location">
+           <Checkbox v-model="single">我是商家</Checkbox>
+           <Input v-if="single" v-model="formInline.location" placeholder="详细地址">
+               <Icon type="location" slot="prepend"></Icon>
+           </Input>
         </Form-item>
         <Form-item>
             <Button type="primary" @click="handleSignIn('formInline')">登录</Button>
@@ -39,7 +45,8 @@
                 formInline: {
                     user: '',
                     password1: '',
-                    password2: ''
+                    password2: '',
+                    location: ''
                 },
                 ruleInline: {
                     user: [
@@ -52,9 +59,11 @@
                     password2: [
                         { required: true, message: '请填写密码', trigger: 'blur' },
                         { type: 'string', min: 6, message: '密码长度不能小于6位', trigger: 'blur' }
-                    ]
+                    ],
+                    location: [{ required: true, message: '请填写地址', trigger: 'blur'}]
+
                 },
-                login: false
+                single: false
             }
         },
         methods: {
