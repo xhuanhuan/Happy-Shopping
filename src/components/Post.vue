@@ -5,7 +5,7 @@
       <Icon class="bell" size=20 type="ios-bell"></Icon>
     </div>
     <div class="add-content" v-on:click="addContent">
-      <Button data-index="1" style="color:white;" class="btn addTitle" type="dashed" size="big">标题</Button>
+      <Button data-index="1" style="color:white;" class="btn addTitle" type="dashed">标题</Button>
       <Button data-index="2" style="color:white;" class="btn addContent" type="dashed">文本</Button>
       <Button data-index="3" style="color:white;" class="btn addImg" type="dashed"><Icon type="ios-camera-outline" size="24"></Icon></Button>
       <Button data-index="4" style="color:white;" class="btn preview" type="dashed" >预览</Button>

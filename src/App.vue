@@ -1,13 +1,8 @@
 <template>
   <div id="app">
-    <!-- <div class="header">
-      <span calss="city">西安 <Icon type="chevron-down"></Icon></span>
-       <Button style="background-color: white;" class="search-btn" type="ghost" shape="circle" icon="ios-search">搜索</Button>
-      <Icon size=20 type="ios-bell"></Icon>
-    </div> -->
     <router-view></router-view>
     <div class="footer">
-    <Menu mode="horizontal" active-name="1" style="background-color: #e3e8ee;display:flex;justify-content: space-between;">
+    <Menu mode="horizontal" :active-name="active" style="background-color: #e3e8ee;display:flex;justify-content: space-between;">
       <router-link to="/home">
         <Menu-item name="1">
           <Icon type="home"></Icon>
@@ -15,13 +10,19 @@
         </Menu-item>
       </router-link>
       <router-link to="/post">
-        <Menu-item name="3" v-if="true">
+        <Menu-item name="2" v-if="true">
           <Icon type="compose"></Icon>
           发布
         </Menu-item>
       </router-link>
-      <router-link to="/personal">
-        <Menu-item name="2">
+      <router-link to="/personal" v-if="hascount">
+        <Menu-item name="3">
+            <Icon type="person"></Icon>
+            我的
+        </Menu-item>
+      </router-link>
+      <router-link to="/login" v-else>
+        <Menu-item name="3">
             <Icon type="person"></Icon>
             我的
         </Menu-item>
@@ -34,6 +35,23 @@
 <script>
 export default {
   name: 'app',
+  computed: {
+    active: function () {
+      var active
+      switch(window.location.hash){
+        case '#/home':active='1';break;
+        case '#/post':active='2';break;
+        case '#/personal':active='3';break;
+      }
+      return active
+    },
+    hascount: function (){
+      if(window.localStorage.username.length>0){
+        return true
+      }
+      return false
+    }
+  },
   methods: {
     navToHome: function (event) {
       location.hash = '/home'
