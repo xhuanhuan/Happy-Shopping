@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="setandsistem">
-      <span class="set" v-on:click="show = true">设置</span>
+      <span class="set" v-on:click="show = true"><Icon type="gear-b"></Icon>设置</span>
       <Icon class="bell" size=20 type="ios-bell"></Icon>
     </div>
     <transition name="setPart">
@@ -32,7 +32,7 @@
             <li><span>店铺背景</span><img class="head-Img" :src="userInfo.headimg" /><Icon size=20 type="camera"></Icon></li>
             <li><span>店铺名称</span><p>erth music旗舰店</p></li>
             <li><span>创建时间</span> <Date-picker type="date" :value="userInfo.birthday" placeholder="选择日期" style="width: 180px"></Date-picker></li>
-            <li><span>去店铺首页</span><router-link to="/home"><Icon type="chevron-right"></Icon></router-link></li>
+            <li><router-link to="/shop" style="width:100%;display:flex;justify-content:space-between"><span>去店铺首页</span><Icon type="chevron-right"></Icon></router-link></li>
           </ul>
         </Panel>
       </Collapse>

@@ -51,17 +51,6 @@ export default {
       }
       return false
     }
-  },
-  methods: {
-    navToHome: function (event) {
-      location.hash = '/home'
-    },
-    navToPost: function (event) {
-      location.hash = '/post'
-    },
-    navToPerson: function (event) {
-      location.hash = '/personal'
-    }
   }
 }
 </script>
@@ -83,6 +72,7 @@ p{
   margin: 0;
 }
 .footer{
+  display: block;
   width: 100%;
   position: fixed;
   bottom: 0;

@@ -7,6 +7,7 @@ import Personal from '@/components/Personal'
 import Login from '@/components/Login'
 import signUp from '@/components/signup'
 import Shop from '@/components/shop'
+import Activity from '@/components/activity'
 
 Vue.use(Router)
 
@@ -45,6 +46,11 @@ export default new Router({
       path: '/shop',
       name: 'shop',
       component: Shop
+    },
+    {
+      path: '/activity',
+      name: 'activity',
+      component: Activity
     }
   ]
 })
