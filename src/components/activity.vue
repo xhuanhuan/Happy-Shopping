@@ -1,21 +1,21 @@
 <template>
   <div>
     <div class="activity-header">
-      <Icon type="close" size=20></Icon>
+      <span v-on:click="hide"><Icon type="close" size=20></Icon></span>
       <span class="shopName">{{activityInfo.shopName}}</span>
     </div>
     <div class="acti-body">
-      <h3>{{activityName}}</h3>
-      <p>{{activityContent}}</p>
+      <h3>{{activityInfo.activityName}}</h3>
+      <p>{{activityInfo.activityContent}}</p>
 
-      <span class="post-time">{{postTime}}</span>
-      <div class="img-container" v-for="url in postImgs">
+      <span class="post-time">{{activityInfo.postTime}}</span>
+      <div class="img-container" v-for="url in activityInfo.postImgs">
         <img class="img" :src="url">
       </div>
     </div>
     <div class="comments-header">全部评论</div>
     <div class="comments">
-      <div class="comments-line" v-for="(comment,index) in comments" v-on:click="answear(index)">
+      <div class="comments-line" v-for="(comment,index) in activityInfo.comments" v-on:click="answear(comment)">
         <span class="person">{{ comment.split(':')[0].split('回复')[0]}}</span>
         <span v-if="comment.indexOf('回复')>-1">回复</span>
         <span class="person" v-if="comment.indexOf('回复')>-1">{{comment.split(':')[0].split('回复')[1]}}</span>
@@ -25,14 +25,25 @@
     <div class="activity-footer">
       <div>
         <Input v-model="currentComment" :placeholder="placeholder">
-          <span slot="append" v-on:click="enterComment"><Icon type="chatbubble-working"></Icon></span>
+          <span slot="append" v-on:click="enterComment">
+            <Tooltip placement="top" content="输入不能为空" :disabled="showNote">
+              <Icon type="chatbubble-working"></Icon>
+            </Tooltip>
+            </span>
         </Input>
       </div>
-      <span v-if="likes.indexOf(userName)>-1" style="color:orange"><Icon type="thumbsup"></Icon>{{likes.length}}</span>
-      <span v-else><Icon type="thumbsup"></Icon>{{likes.length}}</span>
-      <span><Icon type="chatbubble-working"></Icon>{{comments.length}}</span>
-      <span v-if="likes.indexOf(userName)>-1" style="color:orange"><Icon type="heart"></Icon>{{collections.length}}</span>
-      <span v-else><Icon type="heart"></Icon>{{collections.length}}</span>
+      <span><Icon type="eye"></Icon>{{activityInfo.watchs}}</span>
+      <span v-if="activityInfo.likes.indexOf(userName)>-1"
+            v-on:click="activityInfo.likes.splice(activityInfo.likes.indexOf(userName),1)"
+            style="color:orange"><Icon type="thumbsup"></Icon>{{activityInfo.likes.length}}</span>
+      <span v-on:click="activityInfo.likes.push(userName)"
+            v-else><Icon type="thumbsup"></Icon>{{activityInfo.likes.length}}</span>
+      <span v-on:click="activityInfo.collections.splice(activityInfo.collections.indexOf(userName),1)"
+            v-if="activityInfo.collections.indexOf(userName)>-1"
+            style="color:orange"><Icon type="android-favorite"></Icon>{{activityInfo.collections.length}}</span>
+      <span v-on:click="activityInfo.collections.push(userName)"
+            v-else><Icon type="android-favorite-outline"></Icon>{{activityInfo.collections.length}}</span>
+      <span><Icon type="chatbubble-working"></Icon>{{activityInfo.comments.length}}</span>
     </div>
   </div>
 </template>
@@ -111,30 +122,27 @@
 export default {
   name: 'activity',
   props: ['activityInfo'],
-  // computed: {
-  //   activity: function(){
-  //     console.log(this.activityInfo)
-  //     return this.activityInfo
-  //   }
-  // },
-
   methods: {
-    answear: function (index) {
-      var target=this.comments[index].split(':')[0].split('回复')[0]
+    answear: function (comment) {
+      var target=comment.split(':')[0].split('回复')[0]
       this.placeholder=this.userName+'回复'+target+':'
     },
-    enterComment: function () {console.log(this.activity)
+    enterComment: function () {
       if(this.currentComment.length===0){
-        console.log('输入不能为空')
+        this.showNote=false
       }else{
+        this.showNote=true
         if(this.placeholder.indexOf('回复')>-1){
           this.currentComment=this.placeholder+this.currentComment
         }else{
             this.currentComment=this.userName+':'+this.currentComment
         }
-        this.comments.push(this.currentComment)
+        this.activityInfo.comments.push(this.currentComment)
         this.currentComment=''
       }
+    },
+    hide: function(){
+      this.$emit('hide')
     }
   },
   data () {
@@ -142,20 +150,7 @@ export default {
       placeholder:'评论',
       currentComment: '',
       userName:'xhh',
-      activity:this.activityInfo,
-      activityId: '984i12kmdcfk0r1',
-      shopName: 'majestic legon 旗舰店',
-      coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
-      activityName: '#520闺蜜节#',
-      activityContent: '5.20-5.22全场1折起,点开查看更多图片，更有惊喜等着你哟~',
-      postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
-                'http://d.5857.com/qingxinmeinv_140804/001.jpg',
-                'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
-      postTime: '3分钟前',
-      likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
-      comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
-      watchs: 542,
-      collections: ['ggg', 'xbb', 'xyy', 'xas', 'qwc', 'F121', 'qwfq']
+      showNote: true
     }
   }
 }

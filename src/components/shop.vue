@@ -26,15 +26,12 @@
     </div>
     <div class="activity-header">活动</div>
     <div v-for="(item, index) in userInfo.shopInfo.activities">
-    <Collects :activity="item" :activities="userInfo.shopInfo.activities" v-on:toActivitiyPage="toActivitiyPage(index)" v-on:remove="removeCollects(index)"></Collects>
+    <Collects :activity="item" :activities="userInfo.shopInfo.activities" v-on:toActivitiyPage="toActivitiyPage(item)" v-on:remove="removeCollects(index)"></Collects>
     </div>
   </div>
-  <div v-else><activity :activityInfo="activity"></activity></div>
+  <div v-else><activity-Component :activityInfo="activity" v-on:hide="show=!show"></activity-Component></div>
 </template>
 <style scoped>
-/*.footer{
-  display:none;
-}*/
 .shop-back{
   width:100%;
   height:3rem;
@@ -92,7 +89,7 @@ import activity from './activity'
     export default {
       name: 'shop',
       components: {
-        'activity': activity,
+        'activity-Component': activity,
         'Collects': {
           template: `<div class="collects_container" v-on:click="toActivitiyPage">
           <img :src="activityInfo.coverImg" style="width:6rem;height:6rem;">
@@ -150,6 +147,8 @@ import activity from './activity'
               location: '西安市雁塔区太白南路2号',
               activities: [
                 {
+                  shopId: 'r1rf12f',
+                  shopName: 'earth music 旗舰店',
                   activityId: '984i12kmdcfk0r1',
                   coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
                   activityName: '#520闺蜜节#',
@@ -164,9 +163,11 @@ import activity from './activity'
                   collections: ['ggg', 'xbb', 'xyy', 'xas', 'qwc', 'F121', 'qwfq']
                 },
                 {
+                  shopId: 'r1rf12f',
+                  shopName: 'earth music 旗舰店',
                   activityId: '984i12kmdcfk0r1',
                   coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
-                  activityName: '#520闺蜜节#',
+                  activityName: '#521闺蜜节#',
                   activityContent: '5.20-5.22全场1折起wqdqwfweg文菲菲问问二无我问问vv问各位v我饿GV二维v的v翁',
                   postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
                             'http://d.5857.com/qingxinmeinv_140804/001.jpg',
@@ -196,8 +197,8 @@ import activity from './activity'
           activities.splice(index,1)
           this.userInfo.shopInfo.activities=activities
         },
-        toActivitiyPage: function (index) {
-          this.activity=this.userInfo.shopInfo.activities[index]
+        toActivitiyPage: function (item) {
+          this.activity=item
           this.show=false
         },
         togglefollowed: function () {
