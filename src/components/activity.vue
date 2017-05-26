@@ -2,7 +2,7 @@
   <div>
     <div class="activity-header">
       <Icon type="close" size=20></Icon>
-      <span class="shopName">{{shopName}}</span>
+      <span class="shopName">{{activityInfo.shopName}}</span>
     </div>
     <div class="acti-body">
       <h3>{{activityName}}</h3>
@@ -36,7 +36,7 @@
     </div>
   </div>
 </template>
-<style>
+<style scoped>
 .activity-header{
   width:100%;
   height:3rem;
@@ -110,13 +110,20 @@
 <script>
 export default {
   name: 'activity',
-  // props: ['index'],
+  props: ['activityInfo'],
+  // computed: {
+  //   activity: function(){
+  //     console.log(this.activityInfo)
+  //     return this.activityInfo
+  //   }
+  // },
+
   methods: {
     answear: function (index) {
       var target=this.comments[index].split(':')[0].split('回复')[0]
       this.placeholder=this.userName+'回复'+target+':'
     },
-    enterComment: function () {
+    enterComment: function () {console.log(this.activity)
       if(this.currentComment.length===0){
         console.log('输入不能为空')
       }else{
@@ -135,7 +142,7 @@ export default {
       placeholder:'评论',
       currentComment: '',
       userName:'xhh',
-
+      activity:this.activityInfo,
       activityId: '984i12kmdcfk0r1',
       shopName: 'majestic legon 旗舰店',
       coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',

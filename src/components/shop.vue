@@ -1,5 +1,5 @@
 <template>
-  <div class="shop-container">
+  <div class="shop-container" v-if="show">
     <div class="shop-back">
       <router-link to="/personal"><Icon type="arrow-left-c" size=20></Icon></router-link>
     </div>
@@ -29,8 +29,9 @@
     <Collects :activity="item" :activities="userInfo.shopInfo.activities" v-on:toActivitiyPage="toActivitiyPage(index)" v-on:remove="removeCollects(index)"></Collects>
     </div>
   </div>
+  <div v-else><activity :activityInfo="activity"></activity></div>
 </template>
-<style>
+<style scoped>
 /*.footer{
   display:none;
 }*/
@@ -87,9 +88,11 @@
 }
 </style>
 <script>
+import activity from './activity'
     export default {
       name: 'shop',
       components: {
+        'activity': activity,
         'Collects': {
           template: `<div class="collects_container" v-on:click="toActivitiyPage">
           <img :src="activityInfo.coverImg" style="width:6rem;height:6rem;">
@@ -125,6 +128,8 @@
       },
       data () {
         return {
+          show: true,
+          activity: {},
           userInfo: {
             userId: '4124r2543',
             userName: '小欢欢',
@@ -132,7 +137,7 @@
             backgroundimage: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
             birthday: '1991-08-29',
             sex: '女',
-            position: '深圳',
+            location: '深圳',
             shopsFollowed: ['21r2r32g43y3', 'r1rf12f'],
             activitiescollected: ['113532354', '984i12kmdcfk0r1', '152TF322T32T2F'],
             mode: 1,
@@ -149,6 +154,9 @@
                   coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
                   activityName: '#520闺蜜节#',
                   activityContent: '5.20-5.22全场1折起',
+                  postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                            'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                            'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
                   postTime: '3分钟前',
                   likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
                   comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
@@ -160,6 +168,9 @@
                   coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
                   activityName: '#520闺蜜节#',
                   activityContent: '5.20-5.22全场1折起wqdqwfweg文菲菲问问二无我问问vv问各位v我饿GV二维v的v翁',
+                  postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                            'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                            'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
                   postTime: '3分钟前',
                   likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
                   comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
@@ -186,7 +197,8 @@
           this.userInfo.shopInfo.activities=activities
         },
         toActivitiyPage: function (index) {
-          console.log(index)
+          this.activity=this.userInfo.shopInfo.activities[index]
+          this.show=false
         },
         togglefollowed: function () {
           this.followed=!this.followed
