@@ -57,21 +57,10 @@ export default {
       return showMenu
     },
     hascount: function (){
-      if(window.localStorage.username.length>0){
+      if(window.localStorage.username && window.localStorage.username.length>0){
         return true
       }
       return false
-    }
-  },
-  methods: {
-    navToHome: function (event) {
-      location.hash = '/home'
-    },
-    navToPost: function (event) {
-      location.hash = '/post'
-    },
-    navToPerson: function (event) {
-      location.hash = '/personal'
     }
   }
 }
@@ -99,6 +88,7 @@ p{
   margin: 0;
 }
 .footer{
+  display: block;
   width: 100%;
   position: fixed;
   bottom: 0;

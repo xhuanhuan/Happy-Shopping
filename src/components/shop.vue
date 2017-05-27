@@ -1,5 +1,8 @@
 <template>
-  <div class="shop-container">
+  <div class="shop-container" v-if="show">
+    <div class="shop-back">
+      <router-link to="/personal"><Icon type="arrow-left-c" size=20></Icon></router-link>
+    </div>
     <div class="shop-header" >
       <div class="midpart">
         <img class="head-Img" :src="userInfo.shopInfo.headImg">
@@ -7,45 +10,43 @@
       </div>
       <div class="rightpart">
           <div style="display:flex;">
-            <div style="text-align:center;margin-right:1rem;">
+            <div style="text-align:center;margin-right:1rem;color:orange">
               <p>{{userInfo.shopInfo.follows.length}}</p>
               <p>粉丝数</p>
             </div>
-            <Button type="ghost" size='small' icon="checkmark" style="color:#ff9900;border-color:#ff9900;">已关注</Button>
+            <div v-on:click="togglefollowed" v-if="userInfo.mode===0">
+              <Button type="ghost" size='small' icon="checkmark" v-if="followed" style="color:#ff9900;border-color:#ff9900;">已关注</Button>
+              <Button type="info" size='small' v-else>关注</Button>
+            </div>
           </div>
         </div>
     </div>
     <div class="location">
-      <Icon type="location" size=20></Icon> {{userInfo.shopInfo.location}}</Button>
+      <Icon type="location" size=20></Icon> {{userInfo.shopInfo.location}}
     </div>
-    <Menu mode="horizontal" :active-name="sellected" style="display:flex;justify-content: space-around;">
-        <Menu-item name="2">
-          <div v-on:click="latest">
-          <Icon type="ios-lightbulb"></Icon>
-            最新
-          </div>
-        </Menu-item>
-        <div style="width:1px;height:100%;border-left:1px solid rgb(200, 224, 228);"></div>
-        <Menu-item name="3">
-          <div v-on:click="all">
-            <Icon type="android-checkmark-circle"></Icon>
-            全部
-          </div>
-        </Menu-item>
-        <div style="width:1px;height:100%;border-left:1px solid rgb(200, 224, 228);"></div>
-        <Menu-item name="3">
-          <Icon type="navicon"></Icon>筛选
-        </Menu-item>
-    </Menu>
+    <div class="activity-header">活动</div>
+    <div v-for="(item, index) in userInfo.shopInfo.activities">
+    <Collects :activity="item" :activities="userInfo.shopInfo.activities" v-on:toActivitiyPage="toActivitiyPage(item)" v-on:remove="removeCollects(index)"></Collects>
+    </div>
   </div>
+  <div v-else><activity-Component :activityInfo="activity" v-on:hide="show=!show"></activity-Component></div>
 </template>
-<style>
+<style scoped>
+.shop-back{
+  width:100%;
+  height:3rem;
+  background-color: rgba(0, 168, 159, 0.6);
+  padding: 0.5rem 1rem;
+  position: fixed;
+  top:0;
+  left:0;
+}
 .shop-container{
   font-size: 1rem;
 }
 .shop-header{
   width:100%;
-  height:8rem;
+  height:9rem;
   padding: 0 1rem;
   background-image: url(https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1495467447278&di=cb96ffa1d9ce351015f48a9dc7accdab&imgtype=0&src=http%3A%2F%2Fp2.gexing.com%2FG1%2FM00%2F94%2F3E%2FrBACJ1Wf1AHR_z0GAAAY0B5Z488547.jpg);
   background-size: contain;
@@ -67,16 +68,65 @@
 .shopname{
   font-size: 1.1rem;
 }
-.location{
+.activity-header,.location{
   padding: 1rem;
   background-color: #f5f7f9;
   border-bottom: 1px solid #e3e8ee;
 }
+.collects_container{
+  width: 100%;
+  height:10rem;
+  padding:0 1rem;
+  margin-bottom: 1px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e3e8ee;
+}
 </style>
 <script>
+import activity from './activity'
     export default {
+      name: 'shop',
+      components: {
+        'activity-Component': activity,
+        'Collects': {
+          template: `<div class="collects_container" v-on:click="toActivitiyPage">
+          <img :src="activityInfo.coverImg" style="width:6rem;height:6rem;">
+          <div style="display:flex;flex-direction:column;justify-content:space-between;width:16rem;height:6rem;">
+          <div style="height:5rem;overflow:auto;">
+              <h4>{{activityInfo.activityName}}</h4>
+              <p>{{activityInfo.activityContent}}</p>
+          </div>
+          <div style="display:flex;justify-content:flex-end ">
+          <Button type="text" icon="eye" size="small">{{activityInfo.watchs}}</Button>
+          <Button type="text" icon="thumbsup" size="small">{{activityInfo.likes.length}}</Button>
+          <Button type="text" icon="android-favorite-outline" size="small">{{activityInfo.collections.length}}</Button>
+          <Button type="text" icon="chatbox-working" size="small">{{activityInfo.comments.length}}</Button>
+          <Button type="text" icon="close" size="small" v-on:click.stop="remove" style="float:right;color:orange;"></Button>
+          </div>
+          </div>
+          </div>`,
+          props: ['activity', 'activities'],
+          computed: {
+            activityInfo: function () {
+              return this.activity
+            }
+          },
+          methods: {
+            remove: function () {
+              this.$emit('remove')
+            },
+            toActivitiyPage: function () {
+              this.$emit('toActivitiyPage')
+            }
+          },
+        }
+      },
       data () {
         return {
+          show: true,
+          activity: {},
           userInfo: {
             userId: '4124r2543',
             userName: '小欢欢',
@@ -84,7 +134,7 @@
             backgroundimage: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
             birthday: '1991-08-29',
             sex: '女',
-            position: '深圳',
+            location: '深圳',
             shopsFollowed: ['21r2r32g43y3', 'r1rf12f'],
             activitiescollected: ['113532354', '984i12kmdcfk0r1', '152TF322T32T2F'],
             mode: 1,
@@ -97,10 +147,15 @@
               location: '西安市雁塔区太白南路2号',
               activities: [
                 {
+                  shopId: 'r1rf12f',
+                  shopName: 'earth music 旗舰店',
                   activityId: '984i12kmdcfk0r1',
                   coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
                   activityName: '#520闺蜜节#',
                   activityContent: '5.20-5.22全场1折起',
+                  postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                            'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                            'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
                   postTime: '3分钟前',
                   likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
                   comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
@@ -108,10 +163,15 @@
                   collections: ['ggg', 'xbb', 'xyy', 'xas', 'qwc', 'F121', 'qwfq']
                 },
                 {
+                  shopId: 'r1rf12f',
+                  shopName: 'earth music 旗舰店',
                   activityId: '984i12kmdcfk0r1',
                   coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
-                  activityName: '#520闺蜜节#',
-                  activityContent: '5.20-5.22全场1折起',
+                  activityName: '#521闺蜜节#',
+                  activityContent: '5.20-5.22全场1折起wqdqwfweg文菲菲问问二无我问问vv问各位v我饿GV二维v的v翁',
+                  postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                            'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                            'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
                   postTime: '3分钟前',
                   likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
                   comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
@@ -123,7 +183,28 @@
           }
         }
       },
+      computed: {
+        followed:function () {
+          if(this.userInfo.shopsFollowed.indexOf(this.userInfo.shopInfo.shopId)>-1){
+            return true
+          }
+          return false
+        }
+      },
       methods: {
+        removeCollects: function (index) {
+          var activities=[].slice.call(this.userInfo.shopInfo.activities)
+          activities.splice(index,1)
+          this.userInfo.shopInfo.activities=activities
+        },
+        toActivitiyPage: function (item) {
+          this.activity=item
+          this.show=false
+        },
+        togglefollowed: function () {
+          this.followed=!this.followed
+        }
+
       }
     }
 </script>

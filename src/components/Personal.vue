@@ -1,12 +1,12 @@
 <template>
-  <div>
+  <div v-if="!activityShow">
     <div class="setandsistem">
-      <span class="set" v-on:click="show = true">设置</span>
+      <span class="set" v-on:click="setShow = true"><Icon type="gear-b"></Icon>设置</span>
       <Icon class="bell" size=20 type="ios-bell"></Icon>
     </div>
     <transition name="setPart">
-    <div class="setPart" v-if="show">
-      <div class="set-header"><Button type="text" icon="chevron-left" v-on:click="show = false">返回</Button></div>
+    <div class="setPart" v-if="setShow">
+      <div class="set-header"><Button type="text" icon="chevron-left" v-on:click="setShow = false">返回</Button></div>
       <Collapse style="border-left:none;border-right:none;">
         <Panel name="1">
           个人资料
@@ -32,7 +32,7 @@
             <li><span>店铺背景</span><img class="head-Img" :src="userInfo.headimg" /><Icon size=20 type="camera"></Icon></li>
             <li><span>店铺名称</span><p>erth music旗舰店</p></li>
             <li><span>创建时间</span> <Date-picker type="date" :value="userInfo.birthday" placeholder="选择日期" style="width: 180px"></Date-picker></li>
-            <li><span>去店铺首页</span><router-link to="/home"><Icon type="chevron-right"></Icon></router-link></li>
+            <li><router-link to="/shop" style="width:100%;display:flex;justify-content:space-between"><span>去店铺首页</span><Icon type="chevron-right"></Icon></router-link></li>
           </ul>
         </Panel>
       </Collapse>
@@ -43,7 +43,6 @@
       <span class="username">{{userInfo.userName}}</span>
       <img class="head-Img" :src="userInfo.headimg">
     </div>
-
     <div class="user-info">
     <Menu mode="horizontal" :active-name="sellected" style="display:flex;justify-content: space-around;">
         <Menu-item name="2">
@@ -59,30 +58,32 @@
             我的收藏
           </div>
         </Menu-item>
-    </Menu>
-  </div>
-  <div class="app-content" v-if="sellected === 1">
-    <div class="block" v-for="(item, index) in userInfo.shopsFollowed">
-    <Posts :activityId="item" :activityInfo="activitiesInfo"></Posts>
+      </Menu>
+    </div>
+    <div class="app-content" v-if="sellected === 1">
+      <div class="block" v-for="(item, index) in userInfo.shopsFollowed">
+      <Posts :activityId="item" :activityInfo="activitiesInfo"></Posts>
+      </div>
+    </div>
+    <div class="app-content" v-else-if="sellected === 2">
+      <div class="block" v-for="(item, index) in userInfo.shopsFollowed">
+      <Follows :shopId="item" :shopsInfo="shopsInfo" v-on:remove="removeFollows(index)"></Follows>
+      </div>
+    </div>
+    <div class="app-content" v-else>
+      <div class="block" v-for="(item, index) in userInfo.activitiescollected" v-on:click="getCurrentActivity(item)">
+      <Collects :activityId="item" :activitiesInfo="activitiesInfo" v-on:remove="removeCollects(index)"></Collects>
+      </div>
     </div>
   </div>
-  <div class="app-content" v-else-if="sellected === 2">
-    <div class="block" v-for="(item, index) in userInfo.shopsFollowed">
-    <Follows :shopId="item" :shopsInfo="shopsInfo" v-on:remove="removeFollows(index)"></Follows>
-    </div>
-  </div>
-  <div class="app-content" v-else>
-    <div class="block" v-for="(item, index) in userInfo.activitiescollected">
-    <Collects :activityId="item" :activitiesInfo="activitiesInfo" v-on:remove="removeCollects(index)"></Collects>
-    </div>
-  </div>
-
-  </div>
+  <div v-else><activity-Component :activityInfo="activityInfo" v-on:hide="activityShow=!activityShow"></activity-Component></div>
 </template>
 <script>
+import activity from './activity'
     export default {
       name: 'footer',
       components: {
+        'activity-Component': activity,
         'Follows': {
           template: `<div class="follows_container">
           <div :style="container1">
@@ -176,12 +177,20 @@
         },
         back: function () {
           console.log('back')
+        },
+        getCurrentActivity: function(activityId){
+          this.activityInfo=this.activitiesInfo.filter(function(item){
+            return item.activityId===activityId
+          })[0]
+          this.activityShow=true
         }
       },
       data () {
         return {
           sellected: '3',
-          show: false,
+          setShow: false,
+          activityShow: false,
+          activityInfo: {},
           userInfo: {
             userId: '4124r2543',
             userName: '小欢欢',
@@ -202,6 +211,9 @@
               coverImg: 'http://img5.imgtn.bdimg.com/it/u=3691544771,740678494&fm=23&gp=0.jpg',
               activityName: '#520闺蜜节#',
               activityContent: '5.20-5.22全场1折起',
+              postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                        'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                        'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
               postTime: '3小时前',
               likes: ['xdd', 'xbb', 'xyy', 'sdd', 'sma'],
               comments: ['xdd:hello world', 'xss:hello world', 'xmm:hello world'],
@@ -215,6 +227,9 @@
               coverImg: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1495284224924&di=68a61a2ebef04dcf6add96d233fc9fe9&imgtype=0&src=http%3A%2F%2Fh8.86.cc%2Fwalls%2F20160405%2F1440x900_9837c6522e7cb1f.jpg',
               activityName: '#520闺蜜节#',
               activityContent: '5.20-5.22全场1折起',
+              postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                        'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                        'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
               postTime: '3小时前',
               likes: ['xhh', 'qwf', 'qwcqw', 'xbb', 'xyy', 'sdd', 'sma'],
               comments: ['xhh:hello world', 'xdd回复xhh:hello world', 'xmm:hello world'],
@@ -228,6 +243,9 @@
               coverImg: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1495284270411&di=e3dcd156cc328c49250c9e77f1fd82fe&imgtype=0&src=http%3A%2F%2Fwww.1tong.com%2Fuploads%2Fwallpaper%2Fplants%2F121-2-1600x900.jpg',
               activityName: '#520闺蜜节#',
               activityContent: '5.20-5.22全场1折起',
+              postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                        'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                        'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
               postTime: '3分钟前',
               likes: ['xss', 'qwf', 'qwcqw', 'xbb', 'xyy', 'sdd', 'sma'],
               comments: ['xhh:hello world', 'xdd:hello world', 'xmm回复xdd:hello world'],
@@ -237,10 +255,13 @@
             {
               shopId: '21r2r32g43y3',
               activityId: '984i12kmdcfk0r1',
-              shopName: 'collect music 旗舰店',
+              shopName: 'collect point 旗舰店',
               coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
               activityName: '#520闺蜜节#',
               activityContent: '5.20-5.22全场1折起,去重全额V穷，qnf9w初三错去煤气女IQ完虐哦v V的妻女群殴我才去win服务勤奋成为汽车',
+              postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                        'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                        'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
               postTime: '3分钟前',
               likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
               comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],

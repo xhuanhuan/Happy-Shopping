@@ -1,11 +1,11 @@
 <template>
-  <div class="container">
+  <div class="container" v-if="activityShow===false">
     <div class="header">
       <span calss="city">西安 <Icon type="chevron-down"></Icon></span>
        <Button style="background-color: white;" class="search-btn" type="ghost" shape="circle" icon="ios-search">搜索</Button>
       <Icon size=20 type="ios-bell"></Icon>
     </div>
-    <div class="block" v-for="item in activityInfo">
+    <div class="block" v-for="(item,index) in activitiesInfo" v-on:click="getCurrentActivity(item)">
       <div class="userInfo-container">
         <div class="userInfo">
         <div class="head-img-container">
@@ -16,8 +16,11 @@
           <p>{{item.postTime}}</p>
         </div>
       </div>
-        <Button type="ghost" size='small' icon="checkmark" style="float:right;color:#ff9900;border-color:#ff9900;" v-if="test(userInfo.shopFollowed, item.shopId)">已关注</Button>
-        <Button type="ghost" size='small' style="float:right;" v-else>关注</Button>
+        <Button type="ghost" size='small' icon="checkmark" style="float:right;color:#ff9900;border-color:#ff9900;"
+                v-if="userInfo.shopFollowed.indexOf(item.shopId)>-1"
+                @click.stop="userInfo.shopFollowed.splice(userInfo.shopFollowed.indexOf(item.shopId),1)">已关注</Button>
+        <Button type="ghost" size='small' style="float:right;"
+                v-else @click.stop="userInfo.shopFollowed.push(item.shopId)">关注</Button>
       </div>
        <div class="cover">
          <img :src="item.coverImg" class="cover-img">
@@ -29,44 +32,41 @@
       <div class="control">
         <span class="eye"><Icon size=16 type="eye"></Icon>{{item.watchs}}</span>
         <div>
-          <Button type="ghost" shape="circle" class="collection" icon="android-favorite" style="color:#39f;border-color:#39f;"  v-if="test(item.collections, userInfo.userName)">{{item.collections.length}}</Button>
-          <Button type="ghost" shape="circle" class="collection" icon="android-favorite-outline"  v-else>{{item.collections.length}}</Button>
-          <Button type="ghost" shape="circle" class="like" icon="thumbsup" style="color:#39f;border-color:#39f;" v-if="test(item.likes, userInfo.userName)">{{item.likes.length}}</Button>
-          <Button type="ghost" shape="circle" class="like" icon="thumbsup" v-else>{{item.likes.length}}</Button>
-          <Button type="ghost" shape="circle" class="comment" icon="chatbox-working" style="color:#39f;border-color:#39f" v-if="testcomments(item.comments, userInfo.userName)">{{item.comments.length}}</Button>
-          <Button type="ghost" shape="circle" class="comment" icon="chatbox-working" v-else>{{item.comments.length}}</Button>
+          <Button type="ghost" shape="circle" class="collection" icon="android-favorite" style="color:#39f;border-color:#39f;"
+                  v-if="item.collections.indexOf(userInfo.userName)>-1"
+                  @click.stop="item.collections.splice(item.collections.indexOf(userInfo.userName),1)">{{item.collections.length}}</Button>
+          <Button type="ghost" shape="circle" class="collection" icon="android-favorite-outline"
+                  v-else @click.stop="item.collections.push(userInfo.userName)">{{item.collections.length}}</Button>
+          <Button type="ghost" shape="circle" class="like" icon="thumbsup" style="color:#39f;border-color:#39f;"
+                  v-if="item.likes.indexOf(userInfo.userName)>-1"
+                  @click.stop="item.likes.splice(item.likes.indexOf(userInfo.userName),1)">{{item.likes.length}}</Button>
+          <Button type="ghost" shape="circle" class="like" icon="thumbsup"
+                  v-else @click.stop="item.likes.push(userInfo.userName)">{{item.likes.length}}</Button>
+          <Button type="ghost" shape="circle" class="comment" icon="chatbox-working">{{item.comments.length}}</Button>
         </div>
       </div>
     </div>
   </div>
+  <div v-else><activity-Component :activityInfo="activity" v-on:hide="activityShow=false"></activity-Component></div>
 </template>
 
 <script>
+import activity from './activity'
 export default {
   name: 'home',
+  components: {
+    'activity-Component': activity
+  },
   methods: {
-    test: function (arr, str) {
-      var _arr = [].slice.call(arr)
-      if (_arr.indexOf(str) > -1) {
-        return true
-      }
-      return false
-    },
-    testcomments: function (arr, str) {
-      var _arr = [].slice.call(arr)
-      return _arr.some(function (item, index) {
-        var str1
-        if (item.indexOf('回复') > -1) {
-          str1 = item.split('回复')[0]
-        } else {
-          str1 = item.split(':')[0]
-        }
-        return str1 === str
-      })
+    getCurrentActivity: function (item) {
+      this.activity=item
+      this.activityShow=true
     }
   },
   data () {
     return {
+      activityShow: false,
+      activity: {},
       shopInfo: [
         {
           shopId: 'r1rf12f',
@@ -93,7 +93,7 @@ export default {
           follows: ['xhh', 'xbb', 'qwfq', 'qfqqc', 'xyy', 'sdd', 'sma']
         }
       ],
-      activityInfo: [
+      activitiesInfo: [
         {
           shopId: 'r1rf12f',
           shopName: 'earth music 旗舰店',
@@ -101,6 +101,9 @@ export default {
           coverImg: 'http://img5.imgtn.bdimg.com/it/u=3691544771,740678494&fm=23&gp=0.jpg',
           activityName: '#520闺蜜节#',
           activityContent: '5.20-5.22全场1折起',
+          postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                    'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                    'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
           postTime: '3小时前',
           likes: ['xdd', 'xbb', 'xyy', 'sdd', 'sma'],
           comments: ['xdd:hello world', 'xss:hello world', 'xmm:hello world'],
@@ -114,6 +117,9 @@ export default {
           coverImg: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1495284224924&di=68a61a2ebef04dcf6add96d233fc9fe9&imgtype=0&src=http%3A%2F%2Fh8.86.cc%2Fwalls%2F20160405%2F1440x900_9837c6522e7cb1f.jpg',
           activityName: '#520闺蜜节#',
           activityContent: '5.20-5.22全场1折起',
+          postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                    'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                    'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
           postTime: '3小时前',
           likes: ['xhh', 'qwf', 'qwcqw', 'xbb', 'xyy', 'sdd', 'sma'],
           comments: ['xhh:hello world', 'xdd回复xhh:hello world', 'xmm:hello world'],
@@ -127,6 +133,9 @@ export default {
           coverImg: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1495284270411&di=e3dcd156cc328c49250c9e77f1fd82fe&imgtype=0&src=http%3A%2F%2Fwww.1tong.com%2Fuploads%2Fwallpaper%2Fplants%2F121-2-1600x900.jpg',
           activityName: '#520闺蜜节#',
           activityContent: '5.20-5.22全场1折起',
+          postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                    'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                    'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
           postTime: '3分钟前',
           likes: ['xss', 'qwf', 'qwcqw', 'xbb', 'xyy', 'sdd', 'sma'],
           comments: ['xhh:hello world', 'xdd:hello world', 'xmm回复xdd:hello world'],
@@ -140,6 +149,9 @@ export default {
           coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
           activityName: '#520闺蜜节#',
           activityContent: '5.20-5.22全场1折起',
+          postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                    'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                    'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
           postTime: '3分钟前',
           likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
           comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
