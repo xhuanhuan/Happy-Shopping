@@ -7,6 +7,7 @@ import Personal from '@/components/Personal'
 import Login from '@/components/Login'
 import signUp from '@/components/signup'
 import Shop from '@/components/shop'
+import texttest from '@/components/Text/Text'
 
 Vue.use(Router)
 
@@ -34,7 +35,7 @@ export default new Router({
     {
       path: '/post',
       name: 'post',
-      component: Post
+      component: texttest
     },
     {
       path: '/personal',
@@ -45,6 +46,11 @@ export default new Router({
       path: '/shop',
       name: 'shop',
       component: Shop
+    },
+    {
+      path:'/test',
+      name:'test',
+      component:texttest
     }
   ]
 })

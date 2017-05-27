@@ -1,8 +1,10 @@
 <template>
   <div id="app">
-    <router-view></router-view>
+    <transition name='fade'>
+      <router-view></router-view>
+    </transition>
     <div class="footer">
-    <Menu mode="horizontal" :active-name="active" style="background-color: #e3e8ee;display:flex;justify-content: space-between;">
+    <Menu  v-show="showMenu" mode="horizontal" :active-name="active" style="background-color: #e3e8ee;display:flex;justify-content: space-between;">
       <router-link to="/home">
         <Menu-item name="1">
           <Icon type="home"></Icon>
@@ -45,6 +47,15 @@ export default {
       }
       return active
     },
+    showMenu:function(){
+      var showMenu = false;
+      switch(window.location.hash){
+        case '#/home':
+        case '#/post':
+        case '#/personal':showMenu=true;break;
+      }
+      return showMenu
+    },
     hascount: function (){
       if(window.localStorage.username.length>0){
         return true
@@ -73,11 +84,16 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   /*text-align: center;*/
   color: #2c3e50;
+  height:100%;
   /*margin: 4rem 0;*/
+}
+html{
+  height:100%;
 }
 body{
   margin: 0;
   font-size: 1rem;
+  height:100%;
 }
 p{
   margin: 0;
