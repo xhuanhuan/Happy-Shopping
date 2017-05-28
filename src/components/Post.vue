@@ -18,6 +18,21 @@
       <addimg v-else></addimg>
     </div>
     </div>
+    <el-amap-search-box class="search-box" v-model="太白南路2号" :search-option="searchOption" :on-search-result="onSearchResult"></el-amap-search-box>
+    <div class="amap-wrapper">
+       <el-amap :plugin="plugin" :center="mapCenter">
+         <!-- <el-amap-circle v-for="circle in circles" :center="circle.center" :radius="circle.radius"></el-amap-circle> -->
+         <!-- <el-amap-polyline :path="polyline.path"></el-amap-polyline> -->
+         <el-amap-info-window v-for="mark in markers" :position="mark" :content="'hello'"></el-amap-info-window>
+         <el-amap-marker draggable="true" animation="AMAP_ANIMATION_DROP" v-for="mark in markers" :position="mark"></el-amap-marker>
+       </el-amap>
+       <div class="toolbar">
+       <span v-if="loaded">
+         location: lng = {{ lng }} lat = {{ lat }}
+       </span>
+       <span v-else>正在定位</span>
+     </div>
+     </div>
   </div>
 </template>
 <script>
@@ -57,19 +72,86 @@
             case '4' :
               console.log(4)
               break
-
+          }
+        },
+        onSearchResult: function(pois){
+          let latSum = 0;
+          let lngSum = 0;
+          if (pois.length > 0) {
+            pois.forEach(poi => {
+              let {lng, lat} = poi;
+              lngSum += lng;
+              latSum += lat;
+              this.markers.push([poi.lng, poi.lat]);
+            });
+            let center = {
+              lng: lngSum / pois.length,
+              lat: latSum / pois.length
+            };
+            this.mapCenter = [center.lng, center.lat];
           }
         }
-      },
+      } ,
       data () {
+         let self = this
         return {
-          mycomponents: []
+          mycomponents: [],
+          lng: 0,
+          lat: 0,
+          loaded: false,
+          markers: [],
+          mapCenter: [122.5273285, 31.21515044],
+          polyline:{
+            path:[[121.5273285, 32.21515044],[122.5273285, 32.21515044],[123.5273285, 32.21515044]]
+          },
+          searchOption: {
+            city: '西安市',
+            citylimit: false
+          },
+          plugin: [
+            {
+            pName: 'ToolBar',
+            events: {
+              init(instance) {
+                console.log(instance);
+              }
+            }
+          },
+          {
+            pName: 'Scale',
+            events: {
+              init(instance) {
+                console.log(instance);
+              }
+            }
+          }
+          // {
+          //   pName: 'Geolocation',
+          //   events: {
+          //     init(o) {
+          //       o.getCurrentPosition(function(status, result){
+          //         if (result && result.position) {
+          //           self.lng = result.position.lng;
+          //           self.lat = result.position.lat;
+          //           self.mapCenter = [self.lng, self.lat];
+          //           self.loaded = true;
+          //           self.$nextTick();
+          //         }
+          //       });
+          //     }
+          //   }
+          // }
+        ]
         }
       }
     }
 </script>
 
 <style scoped>
+.amap-wrapper{
+  width:100%;
+  height:300px;
+}
 .setandsistem{
   width:100%;
   height:3rem;
@@ -117,7 +199,7 @@
 }
 #text-content{
   width: 100%;
-  min-height: 800px;
+  /*min-height: 800px;*/
   background-color: #f5f7f9;
   padding: 1rem 2rem;
   margin-bottom: 4rem;
