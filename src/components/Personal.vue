@@ -1,5 +1,14 @@
 <template>
-  <div v-if="!activityShow">
+  <div v-if="toLogin">
+    <!-- <login-Component></login-Component> -->
+  </div>
+  <div v-else-if="activityPageShow">
+    <activity-Component :activityInfo="activityInfo" v-on:hide="activityPageShow=false"></activity-Component>
+  </div>
+  <div v-else-if="shopPageShow">
+    <shop-Component :shopInfo="shopInfo" :userInfo="userInfo" v-on:hide="shopPageShow=false"></shop-Component>
+  </div>
+  <div v-else>
     <div class="setandsistem">
       <span class="set" v-on:click="setShow = true"><Icon type="gear-b"></Icon>设置</span>
       <Icon class="bell" size=20 type="ios-bell"></Icon>
@@ -36,7 +45,9 @@
           </ul>
         </Panel>
       </Collapse>
-      <div class="log-out"> <Button long type="warning">退出当前登录</Button></div>
+      <div class="log-out">
+        <Button long type="warning" @click="logOut">退出当前登录</Button>
+      </div>
     </div>
     </transition>
     <div class="header">
@@ -45,15 +56,15 @@
     </div>
     <div class="user-info">
     <Menu mode="horizontal" :active-name="sellected" style="display:flex;justify-content: space-around;">
-        <Menu-item name="2">
-          <div v-on:click="myFollows">
+        <Menu-item name="1">
+          <div v-on:click="sellected = 1">
             <Icon type="eye"></Icon>
             我的关注
           </div>
         </Menu-item>
         <div style="width:1px;height:100%;border-left:1px solid rgb(200, 224, 228);"></div>
-        <Menu-item name="3">
-          <div v-on:click="myCollects">
+        <Menu-item name="2">
+          <div v-on:click="sellected = 2">
             <Icon type="android-checkmark-circle"></Icon>
             我的收藏
           </div>
@@ -61,36 +72,36 @@
       </Menu>
     </div>
     <div class="app-content" v-if="sellected === 1">
-      <div class="block" v-for="(item, index) in userInfo.shopsFollowed">
-      <Posts :activityId="item" :activityInfo="activitiesInfo"></Posts>
-      </div>
-    </div>
-    <div class="app-content" v-else-if="sellected === 2">
-      <div class="block" v-for="(item, index) in userInfo.shopsFollowed">
-      <Follows :shopId="item" :shopsInfo="shopsInfo" v-on:remove="removeFollows(index)"></Follows>
+      <div class="block" v-for="(item,index) in userInfo.shopsFollowed" v-on:click="getCurrentShop(item)">
+      <Follows :shopId="item" :shopsInfo="shopsInfo" v-on:remove="userInfo.shopsFollowed.splice(index,1)"></Follows>
       </div>
     </div>
     <div class="app-content" v-else>
       <div class="block" v-for="(item, index) in userInfo.activitiescollected" v-on:click="getCurrentActivity(item)">
-      <Collects :activityId="item" :activitiesInfo="activitiesInfo" v-on:remove="removeCollects(index)"></Collects>
+      <Collects :activityId="item" :activitiesInfo="activitiesInfo"
+                v-on:remove="userInfo.activitiescollected.splice(index,1)"
+                v-on:toShop="toCurrentShop(item)"></Collects>
       </div>
     </div>
   </div>
-  <div v-else><activity-Component :activityInfo="activityInfo" v-on:hide="activityShow=!activityShow"></activity-Component></div>
 </template>
 <script>
 import activity from './activity'
+import shop from './shop'
+import login from './Login'
     export default {
       name: 'footer',
       components: {
         'activity-Component': activity,
+        'shop-Component': shop,
+        'login-Component': login,
         'Follows': {
           template: `<div class="follows_container">
           <div :style="container1">
           <img :src="shopInfo.headImg" :style="headimgStyle">
           <span :style="shopnameStyle">{{shopInfo.shopName}}</span>
           </div>
-          <Button shape="circle" v-on:click="remove">取消关注</Button>
+          <Button shape="circle" v-on:click.stop="remove">取消关注</Button>
           </div>`,
           props: ['shopId', 'shopsInfo'],
           computed: {
@@ -129,11 +140,11 @@ import activity from './activity'
           template: `<div class="collects_container">
           <img :src="activityInfo.coverImg" style="width:8rem;height:8rem;">
           <div style="width:10rem;height:8rem;overflow:auto">
-          <h3 style="color:#5cadff">{{activityInfo.shopName}}</h3>
+          <h3 style="color:#5cadff" @click.stop="toShop">{{activityInfo.shopName}}</h3>
           <h4>{{activityInfo.activityName}}</h4>
           <p>{{activityInfo.activityContent}}</p>
           </div>
-            <Button icon="close" shape="circle" size="small" v-on:click="remove"></Button>
+            <Button icon="close" shape="circle" size="small" v-on:click.stop="remove"></Button>
           </div>`,
           props: ['activityId', 'activitiesInfo'],
           computed: {
@@ -146,51 +157,66 @@ import activity from './activity'
               return target[0]
             }
           },
+
           methods: {
+            toShop: function () {
+              this.$emit('toShop')
+            },
             remove: function () {
               this.$emit('remove')
             }
           },
         }
       },
+      computed: {
+        toLogin: function () {
+          console.log(window.localStorage.username)
+          if(window.localStorage.username.length>0){
+            return false
+          }
+          window.location.hash='/login'
+          return true
+        }
+      },
       methods: {
-        myPosts: function () {
-          this.sellected = 1
-        },
-        myFollows: function () {
-          this.sellected = 2
-        },
-        myCollects: function () {
-          this.sellected = 3
-        },
-        removeFollows: function (index) {
-          var shopFollowed=[].slice.call(this.userInfo.shopFollowed)
-          console.log(shopFollowed)
-          shopFollowed.splice(index,1)
-          this.userInfo.shopFollowed=shopFollowed
-        },
-        removeCollects: function (index) {
-          var activitiescollected=[].slice.call(this.userInfo.activitiescollected)
-          console.log(activitiescollected)
-          activitiescollected.splice(index,1)
-          this.userInfo.activitiescollected=activitiescollected
-        },
-        back: function () {
-          console.log('back')
+        getCurrentShop: function(shopId){
+          this.shopInfo=this.shopsInfo.filter(function(item){
+            return item.shopId===shopId
+          })[0]
+          this.shopPageShow=true
+          this.activityPageShow=false
         },
         getCurrentActivity: function(activityId){
           this.activityInfo=this.activitiesInfo.filter(function(item){
             return item.activityId===activityId
           })[0]
-          this.activityShow=true
+          this.activityInfo.watchs++
+          this.activityPageShow=true
+          this.shopPageShow=false
+        },
+        toCurrentShop: function (activityId) {
+          var shopId=this.activitiesInfo.filter(function(item){
+            return item.activityId===activityId
+          })[0].shopId
+          this.shopInfo=this.shopsInfo.filter(function(item){
+            return item.shopId===shopId
+          })[0]
+          this.shopPageShow=true
+          this.activityPageShow=false
+        },
+        logOut: function () {
+          window.localStorage.username=''
+          window.location.hash='/login'
         }
       },
       data () {
         return {
-          sellected: '3',
+          sellected: '2',
           setShow: false,
-          activityShow: false,
+          activityPageShow: false,
+          shopPageShow: false,
           activityInfo: {},
+          shopInfo: {},
           userInfo: {
             userId: '4124r2543',
             userName: '小欢欢',
@@ -199,7 +225,7 @@ import activity from './activity'
             birthday: '1991-08-29',
             sex: '女',
             position: '深圳',
-            shopsFollowed: ['21r2r32g43y3', 'r1rf12f'],
+            shopsFollowed: ['124125r3f', '21r2r32g43y3', 'r1rf12f'],
             activitiescollected: ['113532354', '984i12kmdcfk0r1', '152TF322T32T2F'],
             mode: 1
           },
@@ -274,25 +300,169 @@ import activity from './activity'
               shopId: 'r1rf12f',
               shopName: 'earth music 旗舰店',
               headImg: 'http://img5.imgtn.bdimg.com/it/u=3691544771,740678494&fm=23&gp=0.jpg',
-              follows: ['xhh', 'xbb', 'xyy', 'sdd', 'sma']
+              backgroundimage: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
+              follows: ['xhh', 'xbb', 'xyy', 'sdd', 'sma'],
+              location: '西安市雁塔区太白南路2号',
+              activities: [
+                {
+                  shopId: 'r1rf12f',
+                  shopName: 'earth music 旗舰店',
+                  activityId: '984i12kmdcfk0r1',
+                  coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
+                  activityName: '#520闺蜜节#',
+                  activityContent: '5.20-5.22全场1折起',
+                  postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                            'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                            'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
+                  postTime: '3分钟前',
+                  likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
+                  comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
+                  watchs: 542,
+                  collections: ['ggg', 'xbb', 'xyy', 'xas', 'qwc', 'F121', 'qwfq']
+                },
+                {
+                  shopId: 'r1rf12f',
+                  shopName: 'earth music 旗舰店',
+                  activityId: '984i12kmdcfk0r1',
+                  coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
+                  activityName: '#521闺蜜节#',
+                  activityContent: '5.20-5.22全场1折起wqdqwfweg文菲菲问问二无我问问vv问各位v我饿GV二维v的v翁',
+                  postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                            'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                            'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
+                  postTime: '3分钟前',
+                  likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
+                  comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
+                  watchs: 542,
+                  collections: ['ggg', 'xbb', 'xyy', 'xas', 'qwc', 'F121', 'qwfq']
+                }
+              ]
             },
             {
               shopId: '124125r3f',
               shopName: 'majestic legon 旗舰店',
               headImg: 'http://img5.imgtn.bdimg.com/it/u=3691544771,740678494&fm=23&gp=0.jpg',
-              follows: ['xhh', 'xbb', 'xyy', 'saae', 'sma', 'qwd']
+              backgroundimage: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
+              follows: ['xhh', 'xbb', 'xyy', 'saae', 'sma', 'qwd'],
+              location: '西安市雁塔区太白南路2号',
+              activities: [
+                {
+                  shopId: '124125r3f',
+                  shopName: 'majestic legon 旗舰店',
+                  activityId: '984i12kmdcfk0r1',
+                  coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
+                  activityName: '#520闺蜜节#',
+                  activityContent: '5.20-5.22全场1折起',
+                  postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                            'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                            'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
+                  postTime: '3分钟前',
+                  likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
+                  comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
+                  watchs: 542,
+                  collections: ['ggg', 'xbb', 'xyy', 'xas', 'qwc', 'F121', 'qwfq']
+                },
+                {
+                  shopId: '124125r3f',
+                  shopName: 'majestic legon 旗舰店',
+                  activityId: '984i12kmdcfk0r1',
+                  coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
+                  activityName: '#521闺蜜节#',
+                  activityContent: '5.20-5.22全场1折起wqdqwfweg文菲菲问问二无我问问vv问各位v我饿GV二维v的v翁',
+                  postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                            'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                            'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
+                  postTime: '3分钟前',
+                  likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
+                  comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
+                  watchs: 542,
+                  collections: ['ggg', 'xbb', 'xyy', 'xas', 'qwc', 'F121', 'qwfq']
+                }
+              ]
             },
             {
               shopId: '35r3251t3g431',
               shopName: 'nice claup 旗舰店',
               headImg: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1495284270411&di=e3dcd156cc328c49250c9e77f1fd82fe&imgtype=0&src=http%3A%2F%2Fwww.1tong.com%2Fuploads%2Fwallpaper%2Fplants%2F121-2-1600x900.jpg',
-              follows: ['xhh', 'xbb', 'xyy', 'saae', 'sma', 'qwd']
+              backgroundimage: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
+              follows: ['xhh', 'xbb', 'xyy', 'saae', 'sma', 'qwd'],
+              location: '西安市雁塔区太白南路2号',
+              activities: [
+                {
+                  shopId: '35r3251t3g431',
+                  shopName: 'nice claup 旗舰店',
+                  activityId: '984i12kmdcfk0r1',
+                  coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
+                  activityName: '#520闺蜜节#',
+                  activityContent: '5.20-5.22全场1折起',
+                  postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                            'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                            'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
+                  postTime: '3分钟前',
+                  likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
+                  comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
+                  watchs: 542,
+                  collections: ['ggg', 'xbb', 'xyy', 'xas', 'qwc', 'F121', 'qwfq']
+                },
+                {
+                  shopId: '35r3251t3g431',
+                  shopName: 'nice claup 旗舰店',
+                  activityId: '984i12kmdcfk0r1',
+                  coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
+                  activityName: '#521闺蜜节#',
+                  activityContent: '5.20-5.22全场1折起wqdqwfweg文菲菲问问二无我问问vv问各位v我饿GV二维v的v翁',
+                  postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                            'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                            'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
+                  postTime: '3分钟前',
+                  likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
+                  comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
+                  watchs: 542,
+                  collections: ['ggg', 'xbb', 'xyy', 'xas', 'qwc', 'F121', 'qwfq']
+                }
+              ]
             },
             {
               shopId: '21r2r32g43y3',
               shopName: 'collect point 旗舰店',
               headImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
-              follows: ['xhh', 'xbb', 'qwfq', 'qfqqc', 'xyy', 'sdd', 'sma']
+              backgroundimage: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
+              follows: ['xhh', 'xbb', 'qwfq', 'qfqqc', 'xyy', 'sdd', 'sma'],
+              location: '西安市雁塔区太白南路2号',
+              activities: [
+                {
+                  shopId: '21r2r32g43y3',
+                  shopName: 'collect point 旗舰店',
+                  activityId: '984i12kmdcfk0r1',
+                  coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
+                  activityName: '#520闺蜜节#',
+                  activityContent: '5.20-5.22全场1折起',
+                  postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                            'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                            'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
+                  postTime: '3分钟前',
+                  likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
+                  comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
+                  watchs: 542,
+                  collections: ['ggg', 'xbb', 'xyy', 'xas', 'qwc', 'F121', 'qwfq']
+                },
+                {
+                  shopId: '21r2r32g43y3',
+                  shopName: 'collect point 旗舰店',
+                  activityId: '984i12kmdcfk0r1',
+                  coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
+                  activityName: '#521闺蜜节#',
+                  activityContent: '5.20-5.22全场1折起wqdqwfweg文菲菲问问二无我问问vv问各位v我饿GV二维v的v翁',
+                  postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
+                            'http://d.5857.com/qingxinmeinv_140804/001.jpg',
+                            'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
+                  postTime: '3分钟前',
+                  likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
+                  comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
+                  watchs: 542,
+                  collections: ['ggg', 'xbb', 'xyy', 'xas', 'qwc', 'F121', 'qwfq']
+                }
+              ]
             }
           ]
         }

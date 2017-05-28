@@ -1,32 +1,35 @@
 <template>
   <div class="shop-container" v-if="show">
     <div class="shop-back">
-      <router-link to="/personal"><Icon type="arrow-left-c" size=20></Icon></router-link>
+      <span v-on:click="hide">
+        <Icon type="close" size=20></Icon>
+      </span>
     </div>
     <div class="shop-header" >
-      <div class="midpart">
-        <img class="head-Img" :src="userInfo.shopInfo.headImg">
-        <span class="shopname">{{userInfo.shopInfo.shopName}}</span>
+      <div class="leftpart">
+        <img class="head-Img" :src="shopInfo.headImg">
+        <span class="shopname">{{shopInfo.shopName}}</span>
       </div>
       <div class="rightpart">
-          <div style="display:flex;">
-            <div style="text-align:center;margin-right:1rem;color:orange">
-              <p>{{userInfo.shopInfo.follows.length}}</p>
-              <p>粉丝数</p>
+            <div v-on:click="togglefollowed">
+              <div style="text-align:center;color:orange">
+                <p>{{shopInfo.follows.length}}</p>
+                <p>粉丝数</p>
+              </div>
+              <Button type="ghost" size='small' icon="checkmark"  style="color:#ff9900;border-color:#ff9900;"
+                      v-if="userInfo.shopsFollowed.indexOf(shopInfo.shopId)>-1"
+                      @click="userInfo.shopsFollowed.splice(userInfo.shopsFollowed.indexOf(shopInfo.shopId),1)">已关注</Button>
+              <Button type="info" size='small' icon="plus"
+                      v-else @click="userInfo.shopsFollowed.push(shopInfo.shopId)">加关注</Button>
             </div>
-            <div v-on:click="togglefollowed" v-if="userInfo.mode===0">
-              <Button type="ghost" size='small' icon="checkmark" v-if="followed" style="color:#ff9900;border-color:#ff9900;">已关注</Button>
-              <Button type="info" size='small' v-else>关注</Button>
-            </div>
-          </div>
         </div>
     </div>
     <div class="location">
-      <Icon type="location" size=20></Icon> {{userInfo.shopInfo.location}}
+      <Icon type="location" size=20></Icon> {{shopInfo.location}}
     </div>
     <div class="activity-header">活动</div>
-    <div v-for="(item, index) in userInfo.shopInfo.activities">
-    <Collects :activity="item" :activities="userInfo.shopInfo.activities" v-on:toActivitiyPage="toActivitiyPage(item)" v-on:remove="removeCollects(index)"></Collects>
+    <div v-for="(item, index) in shopInfo.activities">
+    <Collects :activity="item" :activities="shopInfo.activities" v-on:toActivitiyPage="toActivitiyPage(item)" v-on:remove="removeCollects(index)"></Collects>
     </div>
   </div>
   <div v-else><activity-Component :activityInfo="activity" v-on:hide="show=!show"></activity-Component></div>
@@ -59,11 +62,11 @@
   height:4rem;
   margin-right: 1rem;
 }
-.midpart{
+.leftpart{
   display: flex;
 }
 .rightpart{
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 .shopname{
   font-size: 1.1rem;
@@ -88,6 +91,7 @@
 import activity from './activity'
     export default {
       name: 'shop',
+      props: ['shopInfo','userInfo'],
       components: {
         'activity-Component': activity,
         'Collects': {
@@ -126,78 +130,20 @@ import activity from './activity'
       data () {
         return {
           show: true,
-          activity: {},
-          userInfo: {
-            userId: '4124r2543',
-            userName: '小欢欢',
-            headimg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
-            backgroundimage: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
-            birthday: '1991-08-29',
-            sex: '女',
-            location: '深圳',
-            shopsFollowed: ['21r2r32g43y3', 'r1rf12f'],
-            activitiescollected: ['113532354', '984i12kmdcfk0r1', '152TF322T32T2F'],
-            mode: 1,
-            shopInfo:{
-              shopId: 'r1rf12f',
-              shopName: 'earth music 旗舰店',
-              headImg: 'http://img5.imgtn.bdimg.com/it/u=3691544771,740678494&fm=23&gp=0.jpg',
-              backgroundimage: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
-              follows: ['xhh', 'xbb', 'xyy', 'sdd', 'sma'],
-              location: '西安市雁塔区太白南路2号',
-              activities: [
-                {
-                  shopId: 'r1rf12f',
-                  shopName: 'earth music 旗舰店',
-                  activityId: '984i12kmdcfk0r1',
-                  coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
-                  activityName: '#520闺蜜节#',
-                  activityContent: '5.20-5.22全场1折起',
-                  postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
-                            'http://d.5857.com/qingxinmeinv_140804/001.jpg',
-                            'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
-                  postTime: '3分钟前',
-                  likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
-                  comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
-                  watchs: 542,
-                  collections: ['ggg', 'xbb', 'xyy', 'xas', 'qwc', 'F121', 'qwfq']
-                },
-                {
-                  shopId: 'r1rf12f',
-                  shopName: 'earth music 旗舰店',
-                  activityId: '984i12kmdcfk0r1',
-                  coverImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
-                  activityName: '#521闺蜜节#',
-                  activityContent: '5.20-5.22全场1折起wqdqwfweg文菲菲问问二无我问问vv问各位v我饿GV二维v的v翁',
-                  postImgs: ['http://img0.imgtn.bdimg.com/it/u=3839631551,1989840719&fm=23&gp=0.jpg',
-                            'http://d.5857.com/qingxinmeinv_140804/001.jpg',
-                            'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg'],
-                  postTime: '3分钟前',
-                  likes: ['xhh', 'gg', 'qwcqw', 'ss', 'xyy', 'sdd', 'sma'],
-                  comments: ['xff回复xdd:hello world', 'xdd:hello world', 'xmm:hello world'],
-                  watchs: 542,
-                  collections: ['ggg', 'xbb', 'xyy', 'xas', 'qwc', 'F121', 'qwfq']
-                }
-              ]
-            }
-          }
-        }
-      },
-      computed: {
-        followed:function () {
-          if(this.userInfo.shopsFollowed.indexOf(this.userInfo.shopInfo.shopId)>-1){
-            return true
-          }
-          return false
+          activity: {}
         }
       },
       methods: {
+        hide: function(){
+          this.$emit('hide')
+        },
         removeCollects: function (index) {
-          var activities=[].slice.call(this.userInfo.shopInfo.activities)
+          var activities=[].slice.call(this.shopInfo.activities)
           activities.splice(index,1)
-          this.userInfo.shopInfo.activities=activities
+          this.shopInfo.activities=activities
         },
         toActivitiyPage: function (item) {
+          item.watchs++
           this.activity=item
           this.show=false
         },

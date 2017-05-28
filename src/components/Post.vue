@@ -25,10 +25,10 @@
       name: 'post',
       components: {
         'addtitle': {
-          template: `<div class="contentContainer"><label class="note">标题</label><Input v-model="value1" class="add_input" placeholder="请输入活动标题" ></Input></div>`
+          template: `<div class="contentContainer"><label class="note">标题</label><Input class="add_input" placeholder="请输入活动标题" ></Input></div>`
         },
         'addtext': {
-          template: `<div class="contentContainer"><label class="note">文本域</label><Input class="add_input" v-model="value2" type="textarea" :autosize="{minRows: 3,maxRows: 5}" placeholder="请输入活动内容"></Input></div>`
+          template: `<div class="contentContainer"><label class="note">文本域</label><Input class="add_input" type="textarea" :autosize="{minRows: 3,maxRows: 5}" placeholder="请输入活动内容"></Input></div>`
         },
         'addimg': {
           template: `<div class="contentContainer"> <Upload multiple action="//jsonplaceholder.typicode.com/posts/">
