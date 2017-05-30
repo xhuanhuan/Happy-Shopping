@@ -18,20 +18,18 @@
       <addimg v-else></addimg>
     </div>
     </div>
-    <el-amap-search-box class="search-box" v-model="太白南路2号" :search-option="searchOption" :on-search-result="onSearchResult"></el-amap-search-box>
+    <el-amap-search-box class="search-box"
+                        :search-option="searchOption"
+                        :on-search-result="onSearchResult"
+                        :events="search"></el-amap-search-box>
     <div class="amap-wrapper">
        <el-amap :plugin="plugin" :center="mapCenter">
-         <!-- <el-amap-circle v-for="circle in circles" :center="circle.center" :radius="circle.radius"></el-amap-circle> -->
-         <!-- <el-amap-polyline :path="polyline.path"></el-amap-polyline> -->
-         <el-amap-info-window v-for="mark in markers" :position="mark" :content="'hello'"></el-amap-info-window>
-         <el-amap-marker draggable="true" animation="AMAP_ANIMATION_DROP" v-for="mark in markers" :position="mark"></el-amap-marker>
+         <el-amap-info-window v-if="toPlace.length>0" position="toPlace[0]" content="到这里去"></el-amap-info-window>
+         <el-amap-marker animation="AMAP_ANIMATION_DROP" v-for="(mark,index) in markers"
+                         icon="'../assets/end.png'"
+                         :position="mark.location" :title="mark.name"
+                         :events="toThisPlace"></el-amap-marker>
        </el-amap>
-       <div class="toolbar">
-       <span v-if="loaded">
-         location: lng = {{ lng }} lat = {{ lat }}
-       </span>
-       <span v-else>正在定位</span>
-     </div>
      </div>
   </div>
 </template>
@@ -75,14 +73,17 @@
           }
         },
         onSearchResult: function(pois){
+          console.log(pois)
           let latSum = 0;
           let lngSum = 0;
+          this.markers=[]
           if (pois.length > 0) {
             pois.forEach(poi => {
               let {lng, lat} = poi;
+              console.log(lng,lat)
               lngSum += lng;
               latSum += lat;
-              this.markers.push([poi.lng, poi.lat]);
+              this.markers.push({location:[lng, lat],name:poi.name});
             });
             let center = {
               lng: lngSum / pois.length,
@@ -90,12 +91,47 @@
             };
             this.mapCenter = [center.lng, center.lat];
           }
+        },
+        toThisPlace: function(index){
+          console.log(index)
         }
       } ,
       data () {
          let self = this
         return {
           mycomponents: [],
+          toPlace:[],
+          search:{
+            init(o) {
+               let Msearch=o.placeSearch
+               Msearch.search('赛格国际商场',function(status, result){
+                 let pois=result.poiList.pois
+                //  console.log(pois)
+                 let latSum = 0;
+                 let lngSum = 0;
+                 self.markers=[]
+                 if (pois.length > 0) {
+                   pois.forEach(poi => {
+                      let {lng, lat} = poi.location;
+                    //  console.log(lng,lat)
+                     lngSum += lng;
+                     latSum += lat;
+                     self.markers.push({location:[lng, lat],name:poi.name});
+                   });
+                   let center = {
+                     lng: lngSum / pois.length,
+                     lat: latSum / pois.length
+                   };
+                   self.mapCenter = [center.lng, center.lat];
+                 }
+               })
+             }
+          },
+          toThisPlace:{
+            dblclick(e){
+              console.log(e.lnglat)
+            }
+          },
           lng: 0,
           lat: 0,
           loaded: false,
@@ -111,6 +147,7 @@
           plugin: [
             {
             pName: 'ToolBar',
+            autoPosition: true,
             events: {
               init(instance) {
                 console.log(instance);
@@ -125,22 +162,6 @@
               }
             }
           }
-          // {
-          //   pName: 'Geolocation',
-          //   events: {
-          //     init(o) {
-          //       o.getCurrentPosition(function(status, result){
-          //         if (result && result.position) {
-          //           self.lng = result.position.lng;
-          //           self.lat = result.position.lat;
-          //           self.mapCenter = [self.lng, self.lat];
-          //           self.loaded = true;
-          //           self.$nextTick();
-          //         }
-          //       });
-          //     }
-          //   }
-          // }
         ]
         }
       }
