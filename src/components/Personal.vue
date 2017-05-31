@@ -171,7 +171,7 @@ import login from './Login'
       computed: {
         toLogin: function () {
           console.log(window.localStorage.username)
-          if(window.localStorage.username.length>0){
+          if(window.localStorage.username && window.localStorage.username.length>0){
             return false
           }
           window.location.hash='/login'

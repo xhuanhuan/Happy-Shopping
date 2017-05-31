@@ -11,6 +11,13 @@ Vue.use(AMap);
 Vue.use(iView)
 Vue.config.productionTip = false
 
+Vue.directive('focus', {
+  // 当绑定元素插入到 DOM 中。
+  inserted: function (el) {
+    // 聚焦元素
+    el.focus()
+  }
+})
 // 初始化vue-amap
 AMap.initAMapApiLoader({
   // 高德的key
@@ -18,7 +25,6 @@ AMap.initAMapApiLoader({
   // 插件集合
   plugin: ['AMap.Autocomplete', 'AMap.PlaceSearch', 'AMap.Scale', 'AMap.OverView', 'AMap.ToolBar', 'AMap.MapType', 'AMap.PolyEditor', 'AMap.CircleEditor']
 });
-
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

@@ -13,7 +13,7 @@
     </div>
     <div id="text-content">
       <div v-for="item in mycomponents">
-      <addtitle v-if="item==='addtitle'"></addtitle>
+      <addtitle place-holder = '11' v-if="item==='addtitle'"></addtitle>
       <addtext v-else-if="item==='addtext'"></addtext>
       <addimg v-else></addimg>
     </div>
@@ -38,13 +38,29 @@
       name: 'post',
       components: {
         'addtitle': {
-          template: `<div class="contentContainer"><label class="note">标题</label><Input class="add_input" placeholder="请输入活动标题" ></Input></div>`
+          props:['placeHolder'],
+          data(){
+            return {
+              value:''
+            }
+          },
+          template: `<div class="contentContainer"><Icon class='content' type='android-delete' /><label class="note">标题</label><Input v-model="value"  style="width:90%" placeholder="title" ></Input></div>`,
         },
         'addtext': {
-          template: `<div class="contentContainer"><label class="note">文本域</label><Input class="add_input" type="textarea" :autosize="{minRows: 3,maxRows: 5}" placeholder="请输入活动内容"></Input></div>`
+          data(){
+            return {
+              value:''
+            }
+          },
+          template: `<div class="contentContainer"><Icon class='content' type='android-delete' /><label class="note">文本域</label><Input class="add_input" style="width:90%" v-model="value" type="textarea" :autosize="{minRows: 3,maxRows: 5}" placeholder="请输入活动内容"></Input></div>`
         },
         'addimg': {
-          template: `<div class="contentContainer"> <Upload multiple action="//jsonplaceholder.typicode.com/posts/">
+          data(){
+            return {
+              value:''
+            }
+          },
+          template: `<div class="contentContainer"><Icon class='content' type='android-delete' /><Upload multiple action="//jsonplaceholder.typicode.com/posts/">
           <Button type="ghost" icon="ios-cloud-upload-outline">上传文件</Button> </Upload></div>`
         }
       },
@@ -194,15 +210,18 @@
 .note{
   margin-right: 1rem;
 }
-.add_input{
-  width:100%;
-}
 .contentContainer{
   /*background-color: silver;*/
-  padding:0.5rem;
+  padding:0.2rem;
   display:flex;
   flex-direction: column;
   align-items: flex-start;
+  position:relative;
+}
+.content{
+  position:absolute;
+  top:50%;
+  right:0px;
 }
 .btn{
   width: 4rem;
