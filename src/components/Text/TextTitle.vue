@@ -1,7 +1,6 @@
 <template>
   <div>
     <input type='text' :placeholder='placeHolder' class='title'/>
-
   </div>
 </template>
 <style scoped>
@@ -16,6 +15,5 @@
 <script>
 export default {
   props:['placeHolder']
-
 }
 </script>

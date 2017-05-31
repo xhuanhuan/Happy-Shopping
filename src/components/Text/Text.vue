@@ -33,13 +33,11 @@ export default {
   },
   data(){
     return {
-      number:0
+      number:0,
+      content:`<h1>123</h1>`,
     }
   },
   methods:{
-    test:function(len){
-      console.log(len)
-    }
   }
 }
 </script>
