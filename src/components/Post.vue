@@ -13,23 +13,11 @@
     </div>
     <div id="text-content">
       <div v-for="item in mycomponents">
-      <addtitle v-if="item==='addtitle'"></addtitle>
-      <addtext v-else-if="item==='addtext'"></addtext>
-      <addimg v-else></addimg>
+        <addtitle v-if="item==='addtitle'"></addtitle>
+        <addtext v-else-if="item==='addtext'"></addtext>
+        <addimg v-else></addimg>
+      </div>
     </div>
-    </div>
-    <el-amap-search-box class="search-box"
-                        :search-option="searchOption"
-                        :on-search-result="onSearchResult"
-                        :events="search"></el-amap-search-box>
-    <div class="amap-wrapper">
-       <el-amap :plugin="plugin" :center="mapCenter">
-         <el-amap-info-window v-if="toPlace.length>0" position="toPlace[0]" content="到这里去"></el-amap-info-window>
-         <el-amap-marker animation="AMAP_ANIMATION_DROP" v-for="(mark,index) in markers"
-                         :position="mark.location" :title="mark.name"
-                         :events="toThisPlace"></el-amap-marker>
-       </el-amap>
-     </div>
   </div>
 </template>
 <script>
@@ -71,107 +59,16 @@
               break
           }
         },
-        onSearchResult: function(pois){
-          console.log(pois)
-          let latSum = 0;
-          let lngSum = 0;
-          this.markers=[]
-          if (pois.length > 0) {
-            pois.forEach(poi => {
-              let {lng, lat} = poi;
-              console.log(lng,lat)
-              lngSum += lng;
-              latSum += lat;
-              this.markers.push({location:[lng, lat],name:poi.name});
-            });
-            let center = {
-              lng: lngSum / pois.length,
-              lat: latSum / pois.length
-            };
-            this.mapCenter = [center.lng, center.lat];
-          }
-        },
-        toThisPlace: function(index){
-          console.log(index)
-        }
       } ,
       data () {
-         let self = this
         return {
-          mycomponents: [],
-          toPlace:[],
-          search:{
-            init(o) {
-               let Msearch=o.placeSearch
-               Msearch.search('赛格国际商场',function(status, result){
-                 let pois=result.poiList.pois
-                //  console.log(pois)
-                 let latSum = 0;
-                 let lngSum = 0;
-                 self.markers=[]
-                 if (pois.length > 0) {
-                   pois.forEach(poi => {
-                      let {lng, lat} = poi.location;
-                    //  console.log(lng,lat)
-                     lngSum += lng;
-                     latSum += lat;
-                     self.markers.push({location:[lng, lat],name:poi.name});
-                   });
-                   let center = {
-                     lng: lngSum / pois.length,
-                     lat: latSum / pois.length
-                   };
-                   self.mapCenter = [center.lng, center.lat];
-                 }
-               })
-             }
-          },
-          toThisPlace:{
-            dblclick(e){
-              console.log(e.lnglat)
-            }
-          },
-          lng: 0,
-          lat: 0,
-          loaded: false,
-          markers: [],
-          mapCenter: [122.5273285, 31.21515044],
-          polyline:{
-            path:[[121.5273285, 32.21515044],[122.5273285, 32.21515044],[123.5273285, 32.21515044]]
-          },
-          searchOption: {
-            city: '西安市',
-            citylimit: false
-          },
-          plugin: [
-            {
-            pName: 'ToolBar',
-            autoPosition: true,
-            events: {
-              init(instance) {
-                console.log(instance);
-              }
-            }
-          },
-          {
-            pName: 'Scale',
-            events: {
-              init(instance) {
-                console.log(instance);
-              }
-            }
-          }
-        ]
+          mycomponents: []
         }
       }
     }
 </script>
 
 <style scoped>
-.amap-wrapper{
-  width:100%;
-  height:300px;
-}
 .setandsistem{
   width:100%;
   height:3rem;

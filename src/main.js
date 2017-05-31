@@ -16,7 +16,7 @@ AMap.initAMapApiLoader({
   // 高德的key
   key: '1b8112ff01a85d4dcde9887e064562d6',
   // 插件集合
-  plugin: ['AMap.Autocomplete', 'AMap.PlaceSearch', 'AMap.Scale', 'AMap.OverView', 'AMap.ToolBar', 'AMap.MapType', 'AMap.PolyEditor', 'AMap.CircleEditor']
+  plugin: ['AMap.Transfer', 'AMap.Geolocation', 'AMap.Autocomplete', 'AMap.PlaceSearch', 'AMap.Scale', 'AMap.OverView', 'AMap.ToolBar', 'AMap.MapType', 'AMap.PolyEditor', 'AMap.CircleEditor']
 });
 
 /* eslint-disable no-new */
