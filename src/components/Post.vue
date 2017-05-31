@@ -26,7 +26,6 @@
        <el-amap :plugin="plugin" :center="mapCenter">
          <el-amap-info-window v-if="toPlace.length>0" position="toPlace[0]" content="到这里去"></el-amap-info-window>
          <el-amap-marker animation="AMAP_ANIMATION_DROP" v-for="(mark,index) in markers"
-                         icon="https://github.com/xhuanhuan/Happy-Shopping/blob/master/src/assets/end.png?raw=true"
                          :position="mark.location" :title="mark.name"
                          :events="toThisPlace"></el-amap-marker>
        </el-amap>
