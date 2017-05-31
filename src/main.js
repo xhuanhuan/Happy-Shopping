@@ -5,6 +5,9 @@ import App from './App'
 import router from './router'
 import iView from 'iview'
 import 'iview/dist/styles/iview.css'
+import AMap from 'vue-amap';
+
+Vue.use(AMap);
 Vue.use(iView)
 Vue.config.productionTip = false
 
@@ -15,6 +18,13 @@ Vue.directive('focus', {
     el.focus()
   }
 })
+// 初始化vue-amap
+AMap.initAMapApiLoader({
+  // 高德的key
+  key: '1b8112ff01a85d4dcde9887e064562d6',
+  // 插件集合
+  plugin: ['AMap.Autocomplete', 'AMap.PlaceSearch', 'AMap.Scale', 'AMap.OverView', 'AMap.ToolBar', 'AMap.MapType', 'AMap.PolyEditor', 'AMap.CircleEditor']
+});
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

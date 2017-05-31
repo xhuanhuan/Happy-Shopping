@@ -17,13 +17,7 @@
           发布
         </Menu-item>
       </router-link>
-      <router-link to="/personal" v-if="hascount">
-        <Menu-item name="3">
-            <Icon type="person"></Icon>
-            我的
-        </Menu-item>
-      </router-link>
-      <router-link to="/login" v-else>
+      <router-link to="/personal">
         <Menu-item name="3">
             <Icon type="person"></Icon>
             我的

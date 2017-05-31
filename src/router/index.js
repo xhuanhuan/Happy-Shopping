@@ -36,7 +36,7 @@ export default new Router({
     {
       path: '/post',
       name: 'post',
-      component: texttest
+      component: Post
     },
     {
       path: '/personal',
