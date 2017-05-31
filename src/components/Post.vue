@@ -12,11 +12,11 @@
       <Button data-index="5" style="color:white;" class="btn post" type="dashed" >提交</Button>
     </div>
     <div id="text-content">
-      <div v-for="item in mycomponents">
-      <addtitle place-holder = '11' v-if="item==='addtitle'"></addtitle>
-      <addtext v-else-if="item==='addtext'"></addtext>
-      <addimg v-else></addimg>
-    </div>
+      <div v-for="(item,index) in mycomponents" :key='index'>
+        <addtitle place-holder = '11' v-if="item==='addtitle'"></addtitle>
+        <addtext v-else-if="item==='addtext'"></addtext>
+        <addimg v-else></addimg>
+      </div>
     </div>
     <el-amap-search-box class="search-box"
                         :search-option="searchOption"
@@ -25,7 +25,7 @@
     <div class="amap-wrapper">
        <el-amap :plugin="plugin" :center="mapCenter">
          <el-amap-info-window v-if="toPlace.length>0" position="toPlace[0]" content="到这里去"></el-amap-info-window>
-         <el-amap-marker animation="AMAP_ANIMATION_DROP" v-for="(mark,index) in markers"
+         <el-amap-marker animation="AMAP_ANIMATION_DROP" v-for="(mark,index) in markers" :key='index'
                          icon="'../assets/end.png'"
                          :position="mark.location" :title="mark.name"
                          :events="toThisPlace"></el-amap-marker>

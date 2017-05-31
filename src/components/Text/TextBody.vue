@@ -1,19 +1,19 @@
 <template>
-  <div class='bodycontainer'>
-    <div
-      @input="messageChanged"
-      @keypress.enter.prevent = 'addElement'
-      >
-      <text-content
-        class='content-text'
-        v-for='(content,index) in contents'
-        :tag='content.tag'
-        :key='content.index'
-        contenteditable="true"
-        v-focus
-        :data-index = 'index'
-        >{{content.value}}</text-content>
-    </div>
+  <div
+    class='bodycontainer'
+    @input="messageChanged"
+    @keypress.enter.prevent = 'addElement'
+    @keydown.delete = 'removeElement'
+    >
+    <text-content
+      class='content-text'
+      v-for='(content,index) in contents'
+      :tag='content.tag'
+      :key='content.index'
+      contenteditable="true"
+      v-focus
+      :data-index = 'index'
+      >{{content.value}}</text-content>
   </div>
 </template>
 
@@ -33,6 +33,7 @@
   outline:0;
 }
 .content-text{
+  height:100%;
   outline:0;
   padding:0;
 }
@@ -48,25 +49,25 @@ export default {
     return {
       contents:[
         {
-          value:index,
+          value:"",
           tag:'p',
           index:index++,
         },
-        {
-          value:index,
-          tag:'p',
-          index:index++,
-        },
-        {
-          value:index,
-          tag:'p',
-          index:index++,
-        },
-        {
-          value:index,
-          tag:'p',
-          index:index++,
-        },
+        // {
+        //   value:index,
+        //   tag:'p',
+        //   index:index++,
+        // },
+        // {
+        //   value:index,
+        //   tag:'p',
+        //   index:index++,
+        // },
+        // {
+        //   value:index,
+        //   tag:'p',
+        //   index:index++,
+        // },
       ],
     }
   },
@@ -76,12 +77,10 @@ export default {
   props:['placeHolder'],
   methods:{
     messageChanged:function(event){
-      console.log(event)
       let str = "";
-      [].forEach.call(event.target.children,function(el){
+      [].forEach.call(event.target.parentNode.children,function(el){
         str+=el.textContent.trim()
       })
-      console.log(str);
       let len = 0
       let reg = /[^\x00-\xff]/;
       for(let i=0;i<str.length;i++){
@@ -91,34 +90,57 @@ export default {
           len+=0.5
         }
       }
-      console.log(len)
       this.$emit('textchanged',len)
     },
     test:function(){
-      this.contents.push({
-        value:'hehe',
-        tag:'p',
-        index:index++,
-      })
-      this.$emit('keydown')
+      console.log("trigger")
+      return 111
     },
     addElement:function(event){
-      console.log(event.target.dataset.index+1);
-      this.contents.map(function(content){
-        console.log(content.index)
-      })
-      console.log('before')
-      this.contents.splice(Number(event.target.dataset.index)+1,0,
-        {
-          value:index,
-          tag:Math.random()>0.5?'p':'h1',
-          index:index++,
+      if(event instanceof Event){
+        this.contents.splice(Number(event.target.dataset.index)+1,0,
+          {
+            value:"",
+            tag:'p',
+            index:index++,
+          }
+        );
+      }else if(typeof(event) === "string"){
+        console.log('trigered')
+        console.log(window.getSelection().focusNode.dataset)
+        let selNode = window.getSelection().focusNode.dataset
+            ? window.getSelection().focusNode
+            :window.getSelection().focusNode.parentNode
+        ;console.log(selNode)
+        if(selNode.dataset.index ){
+          var newNode = {
+            value:"",
+            tag:event,
+            index:index++,
+          }
+          if(selNode.textContent===""){
+            this.contents.splice(Number(selNode.dataset.index),1,newNode);
+          }else{
+            this.contents.splice(Number(selNode.dataset.index)+1,0,newNode)
+          }
         }
-      );
-      this.contents.map(function(content){
-        console.log(content.index)
-      })
-      console.log('after')
+      }
+    },
+    removeElement:function(event){
+      if(event.target.textContent === '' && this.contents.length > 1){
+        event.preventDefault();
+        //设置鼠标聚焦到最后一个文本后方
+        //两个api，window.getSelection()和document.createRange()
+        let sel = window.getSelection()
+        let tempRange = document.createRange()
+        let node = event.target.previousSibling.firstChild
+        tempRange.setStart(node, node.length)
+        sel.removeAllRanges();
+        sel.addRange(tempRange);
+
+        //移除dom
+        this.contents.splice(Number(event.target.dataset.index),1)
+      }
     },
   }
 }

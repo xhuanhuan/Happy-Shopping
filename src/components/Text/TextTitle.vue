@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div @keydown.enter.prevent>
     <input type='text' :placeholder='placeHolder' class='title'/>
   </div>
 </template>

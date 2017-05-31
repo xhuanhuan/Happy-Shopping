@@ -81,6 +81,11 @@ body{
 p{
   margin: 0;
 }
+span,b,i,a{
+  display:inline-block;
+  
+  min-width:1px;
+}
 .footer{
   display: block;
   width: 100%;

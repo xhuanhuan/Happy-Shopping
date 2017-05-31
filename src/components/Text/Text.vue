@@ -1,9 +1,9 @@
 <template>
-  <form class='container'>
+  <form class='container' @focusout='focusout'>
     <text-header :n='number'></text-header>
     <text-title place-holder='请输入文章标题'></text-title>
-    <text-body @textchanged='number=Math.floor($event)'></text-body>
-    <text-footer></text-footer>
+    <text-body ref='body' @textchanged='number=Math.floor($event)'></text-body>
+    <text-footer @addElement='addElement'></text-footer>
   </form>
 </template>
 
@@ -38,6 +38,18 @@ export default {
     }
   },
   methods:{
+    focusout:function(event){
+      if(!event.relatedTarget){
+        event.target.focus()
+      }
+    },
+    test:function(event){
+      console.log(event)
+      this.$refs.body.test(event)
+    },
+    addElement:function(tagname){
+      this.$refs.body.addElement(tagname)
+    },
   }
 }
 </script>
