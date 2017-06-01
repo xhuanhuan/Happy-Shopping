@@ -273,7 +273,8 @@ export default{
       trans.setCity('西安')
      }
      trans.search(self.mylocation,self.toPlace,function(status,result){
-         if(status == 'complete'){
+       console.log(status,result)
+         if(status == 'complete'&&result.info!='NO_DATA'){
            switch(self.transSelected){
              case '1':
               (new Lib.AMap.TransferRender()).autoRender({
@@ -320,6 +321,11 @@ export default{
              self.plan=self.plans[0]
              break;
            }
+         }else{
+           (new Lib.AMap.WalkingRender()).autoRender({
+               data:{info:'抱歉，没有合适线路'},
+               panel:"panel"
+           });
          }
      })
    },
