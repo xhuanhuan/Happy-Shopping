@@ -1,5 +1,5 @@
 <template>
-  <div class="shop-container" v-if="show">
+  <div class="shop-container" v-if="!showActivity&&!showMap">
     <div class="shop-back">
       <span v-on:click="hide">
         <Icon type="close" size=20></Icon>
@@ -24,7 +24,7 @@
             </div>
         </div>
     </div>
-    <div class="location">
+    <div class="location" v-on:click="showMap=true">
       <Icon type="location" size=20></Icon> {{shopInfo.location}}
     </div>
     <div class="activity-header">活动</div>
@@ -32,7 +32,8 @@
     <Collects :activity="item" :activities="shopInfo.activities" v-on:toActivitiyPage="toActivitiyPage(item)" v-on:remove="removeCollects(index)"></Collects>
     </div>
   </div>
-  <div v-else><activity-Component :activityInfo="activity" v-on:hide="show=!show"></activity-Component></div>
+  <div v-else-if="showActivity"><activity-Component :activityInfo="activity" v-on:hide="showActivity=false"></activity-Component></div>
+  <div v-else><map-Component :addressInfo="shopInfo.location" v-on:hide="showMap=false"></map-Component></div>
 </template>
 <style scoped>
 .shop-back{
@@ -89,11 +90,13 @@
 </style>
 <script>
 import activity from './activity'
+import map from './map'
     export default {
       name: 'shop',
       props: ['shopInfo','userInfo'],
       components: {
         'activity-Component': activity,
+        'map-Component':map,
         'Collects': {
           template: `<div class="collects_container" v-on:click="toActivitiyPage">
           <img :src="activityInfo.coverImg" style="width:6rem;height:6rem;">
@@ -129,7 +132,8 @@ import activity from './activity'
       },
       data () {
         return {
-          show: true,
+          showActivity: false,
+          showMap:false,
           activity: {}
         }
       },
@@ -145,7 +149,7 @@ import activity from './activity'
         toActivitiyPage: function (item) {
           item.watchs++
           this.activity=item
-          this.show=false
+          this.showActivity=true
         },
         togglefollowed: function () {
           this.followed=!this.followed

@@ -18,12 +18,15 @@
         <addimg v-else></addimg>
       </div>
     </div>
+    <footer-Component></footer-Component>
   </div>
 </template>
 <script>
+import footer from './footer'
     export default {
       name: 'post',
       components: {
+        'footer-Component':footer,
         'addtitle': {
           template: `<div class="contentContainer"><label class="note">标题</label><Input class="add_input" placeholder="请输入活动标题" ></Input></div>`
         },

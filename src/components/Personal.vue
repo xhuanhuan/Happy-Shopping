@@ -83,18 +83,21 @@
                 v-on:toShop="toCurrentShop(item)"></Collects>
       </div>
     </div>
+    <footer-Component></footer-Component>
   </div>
 </template>
 <script>
 import activity from './activity'
 import shop from './shop'
 import login from './Login'
+import footer from './footer'
     export default {
       name: 'footer',
       components: {
         'activity-Component': activity,
         'shop-Component': shop,
         'login-Component': login,
+        'footer-Component':footer,
         'Follows': {
           template: `<div class="follows_container">
           <div :style="container1">
@@ -302,7 +305,7 @@ import login from './Login'
               headImg: 'http://img5.imgtn.bdimg.com/it/u=3691544771,740678494&fm=23&gp=0.jpg',
               backgroundimage: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
               follows: ['xhh', 'xbb', 'xyy', 'sdd', 'sma'],
-              location: '西安市雁塔区太白南路2号',
+              location: '赛格国际购物中心F2楼',
               activities: [
                 {
                   shopId: 'r1rf12f',
@@ -344,7 +347,7 @@ import login from './Login'
               headImg: 'http://img5.imgtn.bdimg.com/it/u=3691544771,740678494&fm=23&gp=0.jpg',
               backgroundimage: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
               follows: ['xhh', 'xbb', 'xyy', 'saae', 'sma', 'qwd'],
-              location: '西安市雁塔区太白南路2号',
+              location: '赛格国际购物中心F4楼',
               activities: [
                 {
                   shopId: '124125r3f',
@@ -386,7 +389,7 @@ import login from './Login'
               headImg: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1495284270411&di=e3dcd156cc328c49250c9e77f1fd82fe&imgtype=0&src=http%3A%2F%2Fwww.1tong.com%2Fuploads%2Fwallpaper%2Fplants%2F121-2-1600x900.jpg',
               backgroundimage: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
               follows: ['xhh', 'xbb', 'xyy', 'saae', 'sma', 'qwd'],
-              location: '西安市雁塔区太白南路2号',
+              location: '赛格国际购物中心F4楼',
               activities: [
                 {
                   shopId: '35r3251t3g431',
@@ -428,7 +431,7 @@ import login from './Login'
               headImg: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
               backgroundimage: 'http://img0.imgtn.bdimg.com/it/u=3696229962,3913167766&fm=23&gp=0.jpg',
               follows: ['xhh', 'xbb', 'qwfq', 'qfqqc', 'xyy', 'sdd', 'sma'],
-              location: '西安市雁塔区太白南路2号',
+              location: '赛格国际购物中心F4楼',
               activities: [
                 {
                   shopId: '21r2r32g43y3',

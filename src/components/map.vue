@@ -1,12 +1,11 @@
 <template>
   <div>
-  <el-amap-search-box class="search-box"
+  <el-amap-search-box class="search-box" style="display:none"
                       :search-option="searchOption"
                       :on-search-result="onSearchResult"
                       :events="search"></el-amap-search-box>
-  <div class="amap-wrapper">
-     <el-amap :plugin="plugin" :center="mapCenter">
-       <!-- <el-amap-info-window v-if="toPlace.length>0" :position="toPlace" content="到这里去"></el-amap-info-window> -->
+  <div class="amap-wrapper" :style="screenheight">
+     <el-amap :plugin="plugin" :center="mapCenter" amapManager="AmapManager">
        <div v-for="(mark,index) in markers">
           <el-amap-marker animation="AMAP_ANIMATION_DROP"
                           :position="mark.location"
@@ -18,70 +17,49 @@
           <el-amap-polyline :path="plan" strokeColor="red"></el-amap-polyline>
      </el-amap>
    </div>
+     <div v-on:click="Geolocation" class="Geolocation"><Button type="info" shape="circle" icon="ios-navigate"></Button></div>
    <div class="toolbar">
-       <span v-if="loaded">
-         location: lng = {{ lng }} lat = {{ lat }}
-       </span>
-       <span v-else>正在定位</span>
-
-       <Select v-model="transSelected" style="width:200px;float:right;">
+     <span v-on:click="hide"><Icon type="close" size=20></Icon></span>
+       <Select v-model="transSelected" @on-change="changeTrans" :disabled="transSelectedDisabled" style="width:100px">
          <Option v-for="item in transList" :value="item.value" :key="item">{{ item.label }}</Option>
        </Select>
-       <Select v-model="planSelected" @on-change="changePlan"  style="width:200px;float:right;">
+       <Select v-model="planSelected" @on-change="changePlan" :disabled="planSelectedDisabled" style="width:100px">
          <Option v-for="item in plansList" :value="item.value" :key="item">{{ item.label }}</Option>
        </Select>
+       <div v-on:click="showPanel=!showPanel"><Icon type="ios-paw" size="25" color="orange"></Icon></div>
     </div>
-    <!-- <div id="container"></div> -->
-    <div id="panel"></div>
+    <div id="panel" v-on:click="clickPanel" v-show="showPanel"></div>
  </div>
 </template>
 
 <script>
-import AMap from 'vue-amap'
 export default{
-  // computed:{
-  //   plana: function(){
-  //     let compare='disdance'
-  //     let index=0
-  //     switch(this.planSelected){
-  //       case '1':compare='disdance';break;
-  //       case '2':compare='time';break;
-  //       case '3':compare='walking_distance';break;
-  //       case '4':compare='cost';break;
-  //       default: break;
-  //     }
-  //     let c=this.plans[0]
-  //     // self.plans.forEach(function(o,i){
-  //     //   if(o[compare]<c){
-  //     //     index=i
-  //     //   }
-  //     // })
-  //     // let plan=self.plans[index].path.map(function(item){
-  //     //   return [item.lng,item.lat]
-  //     // })
-  //      console.log(this.plans)
-  //     return this.plans[0].path.map(function(item){
-  //       return [item.lng,item.lat]
-  //     })
-  //   }
-  // },
+  props: ['addressInfo'],
+  computed:{
+    screenheight:function(){
+      return {
+        height:document.body.offsetHeight+'px'
+      }
+    }
+  },
   data(){
      let self = this
     return{
+    showPanel:true,
+    planSelectedDisabled:true,
+    transSelectedDisabled:true,
     toPlace:[],
     search:{
       init(o) {
          let Msearch=o.placeSearch
-         Msearch.search('赛格国际商场',function(status, result){
+         Msearch.search(self.addressInfo,function(status, result){
            let pois=result.poiList.pois
-          //  console.log(pois)
            let latSum = 0;
            let lngSum = 0;
            self.markers=[]
            if (pois.length > 0) {
              pois.forEach(poi => {
                 let {lng, lat} = poi.location;
-              //  console.log(lng,lat)
                lngSum += lng;
                latSum += lat;
                self.markers.push({location:[lng, lat],name:poi.name});
@@ -97,34 +75,17 @@ export default{
     },
     toThisPlace:{
       dblclick(e){
-        // console.log(e)
         var location=e.target.G.position
         self.markers=self.markers.map(function(item){
           let location1=item.location
           if(location.lng===location1[0]&&location.lat===location1[1]){
             item.icon='https://raw.githubusercontent.com/xhuanhuan/Happy-Shopping/master/src/assets/end.png'
             self.toPlace=item.location
+            self.transSelectedDisabled=false
           }else{
             item.icon=''
           }
           return item
-        })
-        var trans= self.Transfer
-        trans.setCity('西安')
-        trans.search(self.mylocation,self.toPlace,function(status,result){
-          console.log(result.plans)
-          var distance=result.plans[0].distance
-          var index=0
-          result.plans.forEach(function(o,i){
-            if(o.distance<distance){
-              index=i
-            }
-          })
-          self.plan=result.plans[index].path.map(function(item){
-            return [item.lng,item.lat]
-          })
-          self.plans=result.plans
-          console.log(self.plans)
         })
       }
     },
@@ -132,7 +93,7 @@ export default{
     transList:[
       {
           value: '1',
-          label: '步行'
+          label: '公交'
       },
       {
           value: '2',
@@ -140,10 +101,10 @@ export default{
       },
       {
           value: '3',
-          label: '公交'
+          label: '步行'
       },
     ],
-    planSelected:'1',
+    planSelected:'',
     plansList:[
       {
           value: '1',
@@ -159,10 +120,13 @@ export default{
       },
       {
         value: '4',
-        label: '最少换乘'
+        label: '最少花费'
       }
     ],
-    Transfer:{},
+    Driving: {},
+    Walking: {},
+    Transfer: {},
+    Geolocat: {},
     lng: 0,
     lat: 0,
     loaded: false,
@@ -171,80 +135,72 @@ export default{
     mapCenter: [122.5273285, 31.21515044],
     plans: [],
     plan:[],
-    colors: ['#2d8cf0','#19be6b','#ff9900','#ed3f14','#1c2438','#80848f','#dddee1'],
     searchOption: {
       city: '西安市',
       citylimit: false
     },
     plugin: [
       {
-      pName: 'ToolBar',
-      // autoPosition: true,
-      events: {
-        init(instance) {
-          // console.log(instance)
+        pName: 'ToolBar',
+        position: 'LB'
+      },
+      {
+        pName: 'Geolocation',
+        showButton: false,
+        events: {
+          init(o) {
+            self.Geolocat=o
+            self.Geolocation()
+          }
+        }
+      },
+      {
+        pName: 'Transfer',
+        events: {
+          init(o) {
+            self.Transfer=o
+          }
+        }
+      },
+      {
+        pName: 'Driving',
+        events: {
+          init(o) {
+            self.Driving=o
+          }
+        }
+      },
+      {
+        pName: 'Walking',
+        events: {
+          init(o) {
+            self.Walking=o
+          }
         }
       }
-    },
-    {
-      pName: 'Scale',
-      events: {
-        init(instance) {
-          // console.log(instance)
-        }
-      }
-    },
-    {
-      pName: 'Geolocation',
-      events: {
-        init(o) {
-          o.getCurrentPosition((status, result)=>{
-              // console.log(result)
-            if (result && result.position) {
-              self.lng = result.position.lng
-              self.lat = result.position.lat
-              self.mapCenter = [self.lng, self.lat]
-              self.mylocation=self.mapCenter
-                console.log(  self.mylocation)
-              self.loaded = true
-              self.$nextTick()
-            }
-          })
-        }
-      }
-    },
-    {
-      pName: 'Transfer',
-      events: {
-        init(o) {
-          self.Transfer=o
-        }
-      }
-    }
-    // {
-    //   pName: 'Driving',
-    //   events: {
-    //     init(Driving) {
-    //       console.log(Driving)
-    //       self.Driving=Driving
-    //     }
-    //   }
-    // },
-    // {
-    //   pName: 'Walking',
-    //   events: {
-    //     init(Walking) {
-    //       // console.log(Walking)
-    //       self.Walking=Walking
-    //     }
-    //   }
-    // }
   ]
 }
   },
   methods:{
+    clickPanel: function(e){
+      var node=e.target
+      while(node.tagName!=='DIV'){
+        node=node.parentNode
+      }
+      if(node.className==='planTitle'){
+        var index=parseInt(node.getAttribute('index'))
+        if(this.transSelected==='1'){
+          this.plan=this.plans[index].path.map(function(item){
+            return [item.lng,item.lat]
+          })
+        }else{
+          this.plan=this.plans[index]
+        }
+      }else{
+        console.log(1)
+      }
+    },
     onSearchResult: function(pois){
-      // console.log(pois)
       let latSum = 0;
       let lngSum = 0;
       this.markers=[]
@@ -265,43 +221,144 @@ export default{
       self.lat=0
     },
     changePlan: function(){
-      let compare='disdance'
-      let index=0
-      switch(this.planSelected){
-        case '1':compare='disdance';break;
-        case '2':compare='time';break;
-        case '3':compare='walking_distance';break;
-        case '4':compare='cost';break;
-        default: break;
+      if(this.transSelected==='1'){
+        let compare='disdance'
+        let index=0
+        switch(this.planSelected){
+          case '1':compare='disdance';break;
+          case '2':compare='time';break;
+          case '3':compare='walking_distance';break;
+          case '4':compare='cost';break;
+          default: break;
+        }
+       let c=this.plans[0][compare]
+       this.plans.forEach(function(o,i){
+         if(o[compare]<c){
+           index=i
+         }
+       })
+       this.plan=this.plans[index].path.map(function(item){
+         return [item.lng,item.lat]
+       })
       }
-     let c=this.plans[0][compare]
-     this.plans.forEach(function(o,i){
-       if(o[compare]<c){
-         index=i
+   },
+   changeTrans:function(){
+     var o={}
+     switch(this.transSelected){
+       case '1':o=this.Transfer;this.planSelectedDisabled=false;break;
+       case '2':o=this.Driving;this.planSelectedDisabled=true;break;
+       case '3':o=this.Walking;this.planSelectedDisabled=true;break;
+     }
+     this.getPath(o)
+   },
+   Geolocation: function(){
+     let o=this.Geolocat
+     let self=this
+     o.getCurrentPosition((status, result)=>{
+       if (result && result.position) {
+          console.log('geolocation success')
+         self.lng = result.position.lng
+         self.lat = result.position.lat
+         self.mapCenter = [self.lng, self.lat]
+         self.mylocation=self.mapCenter
+         self.loaded = true
+         self.$nextTick()
        }
      })
-     this.plan=this.plans[index].path.map(function(item){
-       return [item.lng,item.lat]
+   },
+   getPath: function(trans){
+     var self=this
+     self.planSelected=''
+     if(self.transSelected==='1'){
+      trans.setCity('西安')
+     }
+     trans.search(self.mylocation,self.toPlace,function(status,result){
+         if(status == 'complete'){
+           switch(self.transSelected){
+             case '1':
+              (new Lib.AMap.TransferRender()).autoRender({
+                  data:result,
+                  panel:"panel"
+              });
+               self.plan=result.plans[0].path.map(function(item){
+                 return [item.lng,item.lat]
+               })
+               self.plans=result.plans
+              break;
+             case '2':
+             (new Lib.AMap.DrivingRender()).autoRender({
+                 data:result,
+                 panel:"panel"
+             });
+             self.plans=result.routes.map(function(item){
+               let arrdrive=[]
+               item.steps.forEach(function(item1){
+                 let temp=item1.path.map(function(item2){
+                   return [item2.lng,item2.lat]
+                 })
+                 arrdrive=arrdrive.concat(temp)
+               })
+               return arrdrive
+             })
+             self.plan=self.plans[0]
+             break;
+             case '3':
+             (new Lib.AMap.WalkingRender()).autoRender({
+                 data:result,
+                 panel:"panel"
+             });
+             self.plans=result.routes.map(function(item){
+               let arrwalk=[]
+               item.steps.forEach(function(item1){
+                 let temp=item1.path.map(function(item2){
+                   return [item2.lng,item2.lat]
+                 })
+                 arrwalk=arrwalk.concat(temp)
+               })
+               return arrwalk
+             })
+             self.plan=self.plans[0]
+             break;
+           }
+         }
      })
-    }
+   },
+   hide: function(){
+     this.$emit('hide')
+   }
   }
+
 }
 </script>
 <style scoped>
 .amap-wrapper{
   width:100%;
-  height:300px;
 }
 .amap-demo {
   height: 300px;
 }
+.Geolocation{
+  position: fixed;
+  left:1.5rem;
+  bottom: 10rem;
+}
+.toolbar{
+  width:100%;
+  height:4rem;
+  background-color: #d7dde4;
+  position: fixed;
+  top:0;
+  display:flex;
+  justify-content: space-around;
+  align-items: center;
+}
 #panel {
-    position: absolute;
+    position: fixed;
     background-color: white;
     max-height: 80%;
     overflow-y: auto;
-    top: 10px;
-    right: 10px;
+    top: 4rem;
+    right: 0;
     width: 250px;
     border: solid 1px silver;
 }

@@ -52,17 +52,20 @@
         </div>
       </div>
     </div>
+      <footer-Component></footer-Component>
   </div>
 </template>
 
 <script>
 import activity from './activity'
 import shop from './shop'
+import footer from './footer'
 export default {
   name: 'home',
   components: {
     'activity-Component': activity,
-    'shop-Component': shop
+    'shop-Component': shop,
+    'footer-Component':footer
   },
   methods: {
     getCurrentActivity: function (item) {
