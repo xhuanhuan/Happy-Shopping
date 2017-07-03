@@ -1,7 +1,12 @@
 <template>
   <div>
     <div class="login-header">
+      <router-link to="/home">
+        <Icon type="chevron-left"></Icon>
+          去首页
+      </router-link>
       <span class="set" v-on:click="show = true">账户注册</span>
+      <span style="visibility:hidden">占位符</span>
     </div>
     <div class="login-content">
       <Form ref="formInline" :model="formInline" :rules="ruleInline">
@@ -27,7 +32,7 @@
            </Input>
         </Form-item>
         <Form-item>
-            <Button type="primary" @click="handleSignIn('formInline')">登录</Button>
+            <Button type="primary" @click="handleSignIn('formInline')">注册</Button>
         </Form-item>
     </Form>
     <a v-on:click="toLogin">已有账户？点我登录</a>
@@ -35,6 +40,7 @@
   </div>
 </template>
 <script>
+  import ajax from '../utils/ajax';
     export default {
         name: 'login',
         computed: {
@@ -71,20 +77,39 @@
             window.location.hash='/login'
           },
             handleSignIn: function(name) {
+              var that=this;
+              var user=this.formInline.user
               var p1=this.formInline.password1
               var p2=this.formInline.password2
                 this.$refs[name].validate(function(valid){
                     if (valid&&p1===p2) {
-                      console.log('提交成功!');
+                      let data={
+                        username: user,
+                        password:p1
+                      };
+                      let url='http://localhost:3000/register';
+                      let handler=function(res){
+                        let data=JSON.parse(res);
+                        if(data.register==='success'){
+                          console.log("注册成功")
+                          that.$router.push({path:'/home'})
+                          // that.$router.go('/home');
+                        }else if(data.register==='fail'){
+                            console.log("注册失败")
+                        }else{
+                          console.log("someting wrong")
+                        }
+                      }
+                      ajax(data,url,'post',handler)
                     }else{
-                      console.log("fail")
+                      console.log("两次密码输入不一致")
                     }
                 })
             }
         }
     }
 </script>
-<style>
+<style scoped>
 .login-header{
   width:100%;
   height:3rem;
@@ -94,7 +119,7 @@
   top:0;
   left:0;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 }
 .login-content{

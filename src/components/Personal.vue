@@ -177,7 +177,8 @@ import footer from './footer'
           if(window.localStorage.username.length>0){
             return false
           }
-          window.location.hash='/login'
+          this.$router.push({path:'/login'})
+          // window.location.hash='/login'
           return true
         }
       },
@@ -209,7 +210,8 @@ import footer from './footer'
         },
         logOut: function () {
           window.localStorage.username=''
-          window.location.hash='/login'
+          this.$router.push({path:'/login'})
+          // window.location.hash='/login'
         }
       },
       data () {

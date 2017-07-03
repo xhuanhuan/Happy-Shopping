@@ -1,7 +1,12 @@
 <template>
   <div>
     <div class="login-header">
+      <router-link to="/home">
+        <Icon type="chevron-left"></Icon>
+          去首页
+      </router-link>
       <span class="set" v-on:click="show = true">账户登录</span>
+      <span style="visibility:hidden">占位符</span>
     </div>
     <div class="login-content">
     <Form ref="formInline" :model="formInline" :rules="ruleInline">
@@ -24,6 +29,7 @@
   </div>
 </template>
 <script>
+  import ajax from '../utils/ajax';
     export default {
         name: 'login',
         computed: {
@@ -53,20 +59,38 @@
           },
           handleLogIn:function(name) {
             var that=this
+            var user=this.formInline.user
+            var p=this.formInline.password
               this.$refs[name].validate(function(valid){
                   if (valid) {
                     window.localStorage.username=that.formInline.user
-                    window.location.hash="#/personal"
-                    console.log('提交成功!');
+                    // window.location.hash="#/personal"
+                    let data={
+                      username: user,
+                      password:p
+                    };
+                    let url='http://localhost:3000/login';
+                    let handler=function(res){
+                      let data=JSON.parse(res);
+                      if(data.login==='success'){
+                        console.log("登录成功")
+                        that.$router.push({path:'/home'})
+                      }else if(data.login==='fail'){
+                          console.log("用户不存在，请先注册")
+                      }else{
+                        console.log("something wrong")
+                      }
+                    }
+                    ajax(data,url,'post',handler)
                   }else{
-                    console.log("fail")
+                    console.log("输入有误")
                   }
               })
           }
         }
     }
 </script>
-<style>
+<style scoped>
 .login-header{
   width:100%;
   height:3rem;
@@ -76,7 +100,7 @@
   top:0;
   left:0;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 }
 .login-content{
